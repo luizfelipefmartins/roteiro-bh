@@ -1,0 +1,11 @@
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+
+# Dados sensíveis da viagem (voucher, comprovantes) nunca vão para o repositório
+privado/
+*.pdf

@@ -948,6 +948,8 @@ history.scrollRestoration = "manual";
 window.addEventListener("hashchange", render);
 render();
 
-if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+// Modo offline só no site publicado: em localhost o cache mostraria versões antigas durante os testes.
+const local = ["localhost", "127.0.0.1"].includes(location.hostname);
+if ("serviceWorker" in navigator && location.protocol === "https:" && !local) {
   navigator.serviceWorker.register("sw.js").catch(() => {});
 }

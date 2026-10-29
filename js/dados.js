@@ -19,6 +19,40 @@ const ROTEIRO = {
     },
   ],
 
+  // Sem número de voo: com a data, ele mostra quando a casa fica vazia.
+  // "Acompanhar voo" abre o painel de chegadas ou partidas de Confins.
+  voo: {
+    ida: {
+      data: "2026-10-30",
+      de: { cod: null, hora: null, cidade: "origem a confirmar" },
+      para: { cod: "CNF", hora: "22h50", cidade: "Confins, BH" },
+      conexao: "direto ou com conexão? a confirmar",
+      detalhes: [
+        { icone: "conexao", texto: "Conexão", valor: "a confirmar", cor: "ouro" },
+        { icone: "carro", texto: "Na chegada", valor: "malas e Uber", cor: "terracota" },
+      ],
+      acompanhar: "https://www.flightradar24.com/data/airports/cnf/arrivals",
+    },
+    volta: {
+      data: "2026-11-03",
+      de: { cod: "CNF", hora: "06h00", cidade: "Confins, BH" },
+      para: { cod: null, hora: null, cidade: "destino a confirmar" },
+      conexao: "direto ou com conexão? a confirmar",
+      detalhes: [
+        { icone: "relogio", texto: "Sair do hotel", valor: "02h40", cor: "terracota" },
+        { icone: "carro", texto: "Ir de", valor: "Uber agendado", cor: "mata" },
+      ],
+      acompanhar: "https://www.flightradar24.com/data/airports/cnf/departures",
+    },
+  },
+
+  // Onde buscar a previsão do tempo de cada dia (Open-Meteo).
+  locais: {
+    bh: { nome: "BH", lat: -19.92, lon: -43.94 },
+    ouroPreto: { nome: "Ouro Preto", lat: -20.385, lon: -43.503 },
+    inhotim: { nome: "Inhotim", lat: -20.125, lon: -44.22 },
+  },
+
   dias: [
     {
       id: "d30",
@@ -27,6 +61,8 @@ const ROTEIRO = {
       titulo: "Chegada",
       cor: "azulejo",
       foto: "capa",
+      local: "bh",
+      chuva: "Chuva não muda nada: do aeroporto, Uber direto para o hotel.",
       resumo: "Pouso em Confins à noite e direto para o hotel.",
       blocos: [
         {
@@ -52,6 +88,7 @@ const ROTEIRO = {
       titulo: "Belo Horizonte",
       cor: "terracota",
       foto: "igrejinha-pampulha",
+      local: "bh",
       resumo: "Mercado, Pampulha de Niemeyer, mirante e Circuito Liberdade.",
       blocos: [
         {
@@ -144,6 +181,8 @@ const ROTEIRO = {
       titulo: "Ouro Preto e Mariana",
       cor: "ouro",
       foto: "sao-francisco-op",
+      local: "ouroPreto",
+      chuva: "Quem manda no ritmo é a agência. Capa de chuva e calçado antiderrapante: as ladeiras ficam escorregadias.",
       resumo: "Barroco, ladeiras de pedra e uma mina de ouro.",
       blocos: [
         {
@@ -188,6 +227,8 @@ const ROTEIRO = {
       titulo: "Inhotim",
       cor: "mata",
       foto: "narcissus",
+      local: "inhotim",
+      chuva: "Com chuva forte ou raios: menos obras ao ar livre, mais galerias cobertas e carrinho quando liberado.",
       resumo: "Arquitetura, design e instalações imersivas. Sem tentar ver tudo.",
       blocos: [
         {
@@ -269,6 +310,8 @@ const ROTEIRO = {
       titulo: "Até logo, Minas",
       cor: "azulejo",
       foto: "mirante-mangabeiras",
+      local: "bh",
+      chuva: "Chuva de madrugada deixa o trânsito mais lento: sair no horário, sem esticar.",
       resumo: "Madrugada no aeroporto. Voo às 06h00.",
       blocos: [
         {

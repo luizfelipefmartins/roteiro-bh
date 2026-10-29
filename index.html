@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>BH a dois</title>
+  <meta name="description" content="Roteiro da viagem a Belo Horizonte, Ouro Preto, Mariana e Inhotim.">
+  <meta name="theme-color" content="#FFF8EE">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="img/icone.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="img/icone.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=DM+Sans:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+  <main id="app" tabindex="-1"></main>
+
+  <nav class="nav" aria-label="Navegação principal">
+    <a href="#/" data-nav="hoje"></a>
+    <a href="#/dias" data-nav="dias"></a>
+    <a href="#/avisos" data-nav="avisos"></a>
+  </nav>
+
+  <div class="gaveta-fundo" hidden></div>
+  <div class="gaveta" role="dialog" aria-modal="true" aria-labelledby="gaveta-titulo" hidden>
+    <span class="gaveta-alca" aria-hidden="true"></span>
+    <div class="gaveta-conteudo"></div>
+  </div>
+
+  <script src="js/dados.js"></script>
+  <script src="js/icones.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

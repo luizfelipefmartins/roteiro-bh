@@ -1,0 +1,14 @@
+{
+  "name": "BH a dois",
+  "short_name": "BH a dois",
+  "description": "Roteiro da viagem a Belo Horizonte, Ouro Preto, Mariana e Inhotim.",
+  "lang": "pt-BR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#FFF8EE",
+  "theme_color": "#FFF8EE",
+  "icons": [
+    { "src": "img/icone.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

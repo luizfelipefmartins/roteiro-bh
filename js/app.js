@@ -832,8 +832,11 @@ async function gavetaTempo(diaId) {
 async function atualizarBotaoTempo() {
   const alvo = app.querySelector("[data-temp]");
   if (!alvo) return;
-  const dia = diaDoTempo();
-  const rotulo = `${dia.semana} ${dataDe(dia.data).getDate()}`;
+  // O botão mostra sempre a data de hoje; fora da viagem, com o tempo de BH.
+  const h = hojeISO();
+  const dia = diaDeHoje() || { data: h, local: "bh" };
+  const semana = SEMANA[dataDe(h).getDay()].slice(0, 3).replace(/^./, (c) => c.toUpperCase());
+  const rotulo = `${semana} ${dataDe(h).getDate()}`;
   alvo.textContent = `${rotulo} · --°`;
   try {
     const p = await previsao(dia);

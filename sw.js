@@ -2,7 +2,7 @@
 // Textos e código: rede primeiro, cópia guardada se não houver sinal.
 // Fotos e fontes: cópia guardada primeiro. A previsão do tempo nunca é guardada.
 
-// Ao publicar uma mudança, troque a VERSAO para os celulares buscarem a cópia nova.
+// Ao publicar uma mudança, troque a VERSAO aqui e o ?v= dos links no index.html.
 const VERSAO = "roteiro-v2";
 
 // magic-square fica fora: a foto saiu do card "Para fotografar" (volta na v2).
@@ -14,7 +14,7 @@ const FOTOS = [
 ].map((f) => `img/${f}.jpg`);
 
 const ARQUIVOS = [
-  "./", "index.html", "css/estilo.css", "js/dados.js", "js/icones.js", "js/app.js",
+  "./", "index.html", "css/estilo.css?v=2", "js/dados.js?v=2", "js/icones.js?v=2", "js/app.js?v=2",
   "img/creditos.json", "img/icone.svg", "img/icone-192.png", "img/icone-512.png",
   "img/icone-maskable-512.png", "manifest.webmanifest", ...FOTOS,
 ];

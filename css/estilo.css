@@ -467,3 +467,12 @@ img { display: block; max-width: 100%; }
 .guia-ver { display: flex; flex-direction: column; gap: var(--espaco-xs); }
 .guia-ver h3 { font-size: 18px; }
 .guia-ver .lista-regras { padding: 0; }
+
+/* Carrossel no computador: dá para arrastar com o mouse e aparece uma barra fina */
+@media (hover: hover) and (pointer: fine) {
+  .carrossel { cursor: grab; scrollbar-width: thin; scrollbar-color: var(--anel) transparent; padding-bottom: var(--espaco-xs); }
+  .carrossel::-webkit-scrollbar { display: block; height: 6px; }
+  .carrossel::-webkit-scrollbar-thumb { background: var(--anel); border-radius: var(--raio-full); }
+  .carrossel.arrastando { cursor: grabbing; scroll-snap-type: none; user-select: none; }
+  .carrossel img { -webkit-user-drag: none; }
+}

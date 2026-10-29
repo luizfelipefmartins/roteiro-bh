@@ -928,6 +928,31 @@ document.addEventListener("click", (ev) => {
   if (ev.target === gavetaFundo) fecharGaveta();
 });
 
+// Carrossel com mouse: no celular o dedo já rola; no computador, arrastar com o mouse.
+let arrasto = null;
+document.addEventListener("pointerdown", (ev) => {
+  const c = ev.target.closest(".carrossel");
+  if (!c || ev.pointerType !== "mouse" || ev.button !== 0) return;
+  arrasto = { c, x: ev.clientX, inicio: c.scrollLeft, moveu: false };
+});
+document.addEventListener("pointermove", (ev) => {
+  if (!arrasto) return;
+  const dx = ev.clientX - arrasto.x;
+  if (Math.abs(dx) > 5 && !arrasto.moveu) {
+    arrasto.moveu = true;
+    arrasto.c.classList.add("arrastando");
+  }
+  if (arrasto.moveu) arrasto.c.scrollLeft = arrasto.inicio - dx;
+});
+document.addEventListener("pointerup", () => {
+  if (!arrasto) return;
+  const { c, moveu } = arrasto;
+  arrasto = null;
+  c.classList.remove("arrastando");
+  // Depois de arrastar, o clique não abre o card.
+  if (moveu) c.addEventListener("click", (e) => { e.stopPropagation(); e.preventDefault(); }, { capture: true, once: true });
+});
+
 document.addEventListener("submit", (ev) => {
   const form = ev.target.closest("[data-form]");
   if (!form) return;

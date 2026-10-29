@@ -576,6 +576,7 @@ function telaDia(dia, plano) {
     <div class="dias-barra">${bolasDosDias(dia.id)}</div>
     <p class="resumo">${esc(dia.resumo)}</p>
     ${dia.voo ? `<section class="secao">${cardVoo(dia.voo)}</section>` : ""}
+    ${dia.chegada ? blocoChegada(dia) : ""}
     ${dia.blocos.map((b, n) => (BLOCOS[b.tipo] ? BLOCOS[b.tipo](dia, b, n) : "")).join("")}
   </div>`;
 }

@@ -295,7 +295,7 @@ img { display: block; max-width: 100%; }
 .bilhete { background: var(--branco); border-radius: 22px; }
 .bilhete-topo { padding: 18px 20px 16px; display: flex; align-items: center; gap: 10px; }
 .bilhete-topo .bolinha { width: 38px; height: 38px; border-radius: 12px; background: var(--forte); color: #fff; }
-.bilhete-topo span { font-size: 13px; color: var(--cinza); display: block; }
+.bilhete-topo div span { font-size: 13px; color: var(--cinza); display: block; }
 .bilhete-horas { padding: 0 20px 18px; display: grid; grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr); gap: 6px; align-items: start; }
 .bilhete-horas .grande { display: block; font-size: 30px; font-weight: 700; letter-spacing: -0.5px; line-height: 1.2; }
 .bilhete-horas p { font-size: 13px; line-height: 1.35; color: var(--cinza); margin-top: 4px; }

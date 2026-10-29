@@ -17,6 +17,11 @@
   --corpo: "DM Sans", system-ui, sans-serif;
   --sombra: 0 8px 24px rgba(43, 35, 64, 0.08);
 
+  /* Escala de 4 px e raios, iguais às variáveis do design system no Figma */
+  --espaco-3xs: 2px; --espaco-2xs: 4px; --espaco-xs: 8px; --espaco-sm: 12px; --espaco-md: 16px;
+  --espaco-lg: 20px; --espaco-xl: 24px; --espaco-2xl: 32px; --espaco-3xl: 40px; --espaco-4xl: 48px;
+  --raio-sm: 8px; --raio-md: 12px; --raio-lg: 16px; --raio-xl: 20px; --raio-2xl: 24px; --raio-3xl: 28px; --raio-full: 999px;
+
   /* Cor do dia: o padrão é azulejo; cada tela troca pela classe .cor-* */
   --claro: #DCE7FF;
   --forte: #2459C4;
@@ -228,7 +233,7 @@ img { display: block; max-width: 100%; }
 /* Linha do tempo */
 .linha-tempo { list-style: none; margin: 0; padding: 0; background: var(--branco); border-radius: 20px; overflow: hidden; }
 .linha-tempo li {
-  display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 12px;
+  display: grid; grid-template-columns: 76px minmax(0, 1fr) 32px; gap: 12px; align-items: start;
   padding: 14px 16px; border-bottom: 1px solid #F3EADF;
 }
 .linha-tempo li:last-child { border-bottom: 0; }
@@ -410,3 +415,55 @@ img { display: block; max-width: 100%; }
   .gaveta { animation: none; }
   html { scroll-behavior: auto; }
 }
+
+/* ---------- Telas novas (Figma, 2026-10-29) ---------- */
+
+/* Topo do início: título e contagem à esquerda, tempo à direita */
+.inicio-topo { align-items: center; }
+.inicio-titulo { display: flex; flex-direction: column; align-items: flex-start; gap: var(--espaco-2xs); }
+.inicio-titulo .chip { margin-top: var(--espaco-2xs); }
+.secao-hoje { padding-top: var(--espaco-lg); }
+
+/* Check da linha do tempo */
+.check {
+  width: 32px; height: 32px; padding: 0; border-radius: var(--raio-full);
+  border: 2px dashed var(--anel); background: transparent; color: transparent;
+  display: flex; align-items: center; justify-content: center;
+}
+.check[aria-pressed="true"] { border: 0; background: var(--forte); color: #fff; }
+.linha-tempo li.feito .texto > span, .linha-tempo li.feito .hora { color: var(--cinza); text-decoration: line-through; }
+
+/* Antes de ir */
+.caixa-lista { display: block; padding: var(--espaco-2xs) var(--espaco-md); }
+.pendencia-botao { width: 100%; border: 0; border-bottom: 1px solid #F3EADF; background: transparent; text-align: left; color: inherit; }
+.pendencia-botao > span { flex-grow: 1; }
+.caixa-calma .ic { color: var(--aviso-texto); }
+
+/* Hotel */
+.hotel { padding: var(--espaco-md); display: flex; flex-direction: column; gap: var(--espaco-sm); box-shadow: var(--sombra); }
+.hotel-topo { display: flex; gap: var(--espaco-sm); align-items: flex-start; }
+.hotel-topo strong { display: block; font-size: 16px; }
+.hotel .botao { min-height: 48px; font-size: 15px; border-radius: var(--raio-lg); }
+.link-editar { align-self: center; border: 0; background: transparent; color: var(--forte); font-size: 14px; font-weight: 700; text-decoration: underline; padding: var(--espaco-2xs); }
+
+/* Formulários das gavetas */
+.formulario { display: flex; flex-direction: column; gap: var(--espaco-md); }
+.campo { display: flex; flex-direction: column; gap: var(--espaco-2xs); border: 0; margin: 0; padding: 0; min-width: 0; }
+.campo > span, .campo legend { font-size: 13px; font-weight: 700; color: var(--tinta-2); padding: 0; margin-bottom: var(--espaco-2xs); }
+.campo input:not([type="radio"]) {
+  min-height: 48px; padding: 0 var(--espaco-md); border-radius: var(--raio-md);
+  border: 1.5px solid var(--linha); background: var(--creme); font: inherit; font-size: 16px; color: var(--tinta);
+}
+.campos-dupla { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--espaco-sm); }
+.opcao { cursor: pointer; min-height: 40px; }
+.opcao input { margin: 0; accent-color: var(--forte); }
+
+/* Guia do lugar */
+.gaveta .foto-icone {
+  width: 100%; aspect-ratio: 350 / 190; border-radius: var(--raio-xl);
+  display: flex; align-items: center; justify-content: center; background: var(--forte); color: var(--claro);
+}
+.guia-titulo { display: flex; flex-direction: column; gap: var(--espaco-2xs); }
+.guia-ver { display: flex; flex-direction: column; gap: var(--espaco-xs); }
+.guia-ver h3 { font-size: 18px; }
+.guia-ver .lista-regras { padding: 0; }

@@ -75,8 +75,37 @@ function lembrar(chave) {
   try { return localStorage.getItem(`roteiro:${chave}`); } catch (e) { return null; }
 }
 
+function lerJSON(chave) {
+  try { return JSON.parse(lembrar(chave)) || null; } catch (e) { return null; }
+}
+
+function somaDias(iso, n) {
+  const d = dataDe(iso);
+  d.setDate(d.getDate() + n);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+// Voo e hotel: o que a pessoa digitou no app fica só neste celular, por cima dos valores do roteiro.
+function vooDe(aba) {
+  const base = R.voo[aba];
+  const s = lerJSON(`voo:${aba}`) || {};
+  return {
+    ...base,
+    numero: s.numero || "",
+    conexao: s.conexao || base.conexao,
+    de: { cod: s.deCod || base.de.cod, hora: s.deHora || base.de.hora, cidade: s.deCidade || base.de.cidade },
+    para: { cod: s.paraCod || base.para.cod, hora: s.paraHora || base.para.hora, cidade: s.paraCidade || base.para.cidade },
+  };
+}
+
+function hotel() {
+  return lerJSON("hotel");
+}
+
 function lugaresDoDia(dia) {
-  return dia.blocos.filter((b) => b.tipo === "cards" || b.tipo === "galerias").flatMap((b) => b.itens);
+  return dia.blocos
+    .filter((b) => b.tipo === "cards" || b.tipo === "galerias")
+    .flatMap((b) => b.itens.map((i) => ({ ...i, dentro: !!b.dentro })));
 }
 
 function cenariosDoDia(dia) {
@@ -144,20 +173,26 @@ function acoesDoItem(item) {
   const botoes = [];
   if (item.mapa) botoes.push(`<a class="botao-mini" href="${linkMapa(item.mapa)}" target="_blank" rel="noopener">${icone("pino", 16)} Mapa</a>`);
   if (item.uber) {
-    const destino = typeof item.uber === "string" ? item.uber : null;
+    // "hotel" usa o endereço guardado no celular; sem ele, o Uber abre sem destino.
+    const destino = item.uber === "hotel" ? hotel()?.endereco || null : typeof item.uber === "string" ? item.uber : null;
     botoes.push(`<a class="botao-mini" href="${linkUber(destino)}" target="_blank" rel="noopener">${icone("carro", 16)} Chamar Uber</a>`);
   }
   return botoes.length ? `<div class="acoes">${botoes.join("")}</div>` : "";
 }
 
-function linhaDoTempo(itens) {
+// Cada parada tem um check; o que foi marcado fica salvo no celular (chave = dia, bloco e posição).
+function linhaDoTempo(itens, chave) {
   return `<ol class="linha-tempo">${itens
-    .map(
-      (i) => `<li${i.destaque ? ' class="destaque"' : ""}>
+    .map((i, n) => {
+      const id = `feito:${chave}:${n}`;
+      const feito = lembrar(id) === "1";
+      const classes = [i.destaque ? "destaque" : "", feito ? "feito" : ""].filter(Boolean).join(" ");
+      return `<li${classes ? ` class="${classes}"` : ""}>
         <span class="hora">${esc(i.hora)}</span>
         <div class="texto"><span>${esc(i.texto)}</span>${acoesDoItem(i)}</div>
-      </li>`,
-    )
+        <button type="button" class="check" data-acao="feito" data-id="${id}" aria-pressed="${feito}" aria-label="Marcar como feito: ${esc(i.texto)}">${icone("ok", 18)}</button>
+      </li>`;
+    })
     .join("")}</ol>`;
 }
 
@@ -188,8 +223,8 @@ function blocoCenarios(dia, bloco, escolhido) {
         .join("")}
     </div>
     <p class="legenda" style="font-size:15px">${esc(atual.descricao)}</p>
-    ${atual.alerta ? `<div class="caixa-aviso">${icone("alerta", 22)}<p>${esc(atual.alerta)}</p></div>` : ""}
-    ${linhaDoTempo(atual.itens)}`;
+    ${atual.alerta ? `<div class="caixa-aviso">${icone("info", 22)}<p>${esc(atual.alerta)}</p></div>` : ""}
+    ${linhaDoTempo(atual.itens, `${dia.id}:plano-${atual.id}`)}`;
 }
 
 function cenarioEscolhido(dia) {
@@ -204,8 +239,19 @@ function negritarHoras(texto) {
 
 // ---------- Blocos do dia ----------
 
+function topoSecao(titulo, legenda) {
+  return legenda
+    ? `<div class="secao-topo"><h2>${esc(titulo)}</h2><span class="legenda">${esc(legenda)}</span></div>`
+    : `<h2>${esc(titulo)}</h2>`;
+}
+
 const BLOCOS = {
-  linha: (dia, b) => `<section class="secao"><h2>${esc(b.titulo)}</h2>${linhaDoTempo(b.itens)}</section>`,
+  linha: (dia, b, n) => `<section class="secao">${topoSecao(b.titulo, b.legenda)}${linhaDoTempo(b.itens, `${dia.id}:${n}`)}</section>`,
+
+  lista: (dia, b) => `<section class="secao">
+      ${topoSecao(b.titulo, b.legenda)}
+      <ul class="lista-regras">${b.itens.map((t) => `<li>${icone("ok", 18)}<span>${esc(t)}</span></li>`).join("")}</ul>
+    </section>`,
 
   nota: (dia, b) => `<section class="secao">
       <div class="nota">${icone("info", 22)}<p><strong>${esc(b.titulo)}</strong>${esc(b.texto)}</p></div>
@@ -275,7 +321,7 @@ const BLOCOS = {
           ${b.contatos ? `<p>${esc(b.contatos)}</p>` : ""}
         </div>
       </div>
-      ${b.volta ? `<div class="caixa-aviso">${icone("relogio", 22)}<p>${negritarHoras(b.volta)}</p></div>` : ""}
+      ${b.volta ? `<div class="caixa-aviso caixa-calma">${icone("relogio", 22)}<p>${negritarHoras(b.volta)}</p></div>` : ""}
     </section>`;
   },
 
@@ -298,52 +344,130 @@ const BLOCOS = {
 
 // ---------- Telas ----------
 
+// Avisos da tela de início: antes da viagem, os marcados com "antes"; durante, só os de hoje e de amanhã.
+function avisosDoInicio() {
+  const h = hojeISO();
+  if (h < R.inicio) return { titulo: "Atenção", textos: R.avisos.filter((a) => a.antes).map((a) => a.texto) };
+  if (h > R.fim) return null;
+  const deHoje = R.avisos.filter((a) => a.data === h && a.hoje).map((a) => a.hoje);
+  const deAmanha = R.avisos.filter((a) => a.data === somaDias(h, 1) && a.amanha).map((a) => a.amanha);
+  const titulo = deHoje.length && deAmanha.length ? "Hoje e amanhã" : deHoje.length ? "Hoje" : "Amanhã";
+  return { titulo, textos: [...deHoje, ...deAmanha] };
+}
+
+function blocoAvisos() {
+  const a = avisosDoInicio();
+  if (!a || !a.textos.length) return "";
+  return `<section class="secao">
+      <div class="secao-topo"><h2>${a.titulo}</h2><a class="legenda" href="#/avisos">ver tudo</a></div>
+      ${a.textos.map((t) => `<div class="caixa-aviso">${icone("alerta", 22)}<p>${negritarHoras(t)}</p></div>`).join("")}
+    </section>`;
+}
+
+function blocoAntesDeIr() {
+  const a = R.antesDeIr;
+  return `<section class="secao">
+      <div class="secao-topo"><h2>Antes de ir</h2><span class="legenda">${a.itens.length} para confirmar</span></div>
+      <div class="caixa-aviso caixa-lista">
+        ${a.itens
+          .map((i) =>
+            i.voo
+              ? `<button type="button" class="pendencia pendencia-botao" data-acao="editar-voo">${icone("pendente", 18)}<span>${esc(i.texto)}</span>${icone("seta", 16)}</button>`
+              : `<div class="pendencia">${icone("pendente", 18)}<span>${esc(i.texto)}</span></div>`,
+          )
+          .join("")}
+      </div>
+      <a class="botao" href="${esc(a.link.url)}" target="_blank" rel="noopener">${icone("externo", 18)} ${esc(a.link.texto)}</a>
+    </section>
+    <section class="secao">
+      <div class="secao-topo"><h2>Para levar</h2><span class="legenda">junte antes de sair</span></div>
+      <div class="chips">${R.paraLevar.map((t) => `<span class="chip chip-cor">${icone("mochila", 14)} ${esc(t)}</span>`).join("")}</div>
+    </section>`;
+}
+
+function cardHotel() {
+  const h = hotel();
+  if (!h) {
+    return `<div class="hotel cartao vazio">
+        <div class="hotel-topo"><span class="bolinha">${icone("cama", 18)}</span><div><strong>Seu hotel</strong><span class="legenda">Nome e endereço ficam só neste celular.</span></div></div>
+        <button type="button" class="botao" data-acao="editar-hotel">${icone("cama", 18)} Adicionar hotel</button>
+      </div>`;
+  }
+  return `<div class="hotel cartao">
+      <div class="hotel-topo"><span class="bolinha">${icone("cama", 18)}</span><div><strong>${esc(h.nome || "Seu hotel")}</strong><span class="legenda">${esc(h.endereco || "")}</span></div></div>
+      <div class="botoes">
+        <button type="button" class="botao" data-acao="copiar" data-texto="${esc(h.endereco || "")}">${icone("copiar", 18)} Copiar endereço</button>
+        <a class="botao" href="${linkMapa(h.endereco || h.nome)}" target="_blank" rel="noopener">${icone("pino", 18)} Mapa</a>
+      </div>
+      <button type="button" class="link-editar" data-acao="editar-hotel">Editar dados do hotel</button>
+    </div>`;
+}
+
+function blocoChegada(dia) {
+  const c = dia.chegada;
+  const h = hotel();
+  return `<section class="secao">
+      <div class="secao-topo"><h2>Ao chegar</h2><span class="legenda">${esc(c.legenda)}</span></div>
+      ${cardHotel()}
+      <a class="botao botao-cheio" href="${linkUber(h?.endereco || null)}" target="_blank" rel="noopener">${icone("carro", 20)} ${esc(c.uber)}</a>
+      <div class="nota">${icone("panela", 22)}<p><strong>${esc(c.jantar.titulo)}</strong>${esc(c.jantar.texto)}</p></div>
+      <a class="botao" href="${esc(c.jantar.url)}" target="_blank" rel="noopener">${icone("externo", 18)} ${esc(c.jantar.botao)}</a>
+    </section>`;
+}
+
+function botaoTempo() {
+  return `<button type="button" class="botao-tempo" data-acao="tempo" aria-label="Previsão do tempo">${icone("solNuvem", 24)}<span data-temp>--°</span></button>`;
+}
+
 function telaInicio() {
   const hoje = diaDeHoje();
+  const antes = hojeISO() < R.inicio;
   const depois = hojeISO() > R.fim;
-  const avisos = R.avisos.map((a) => `<div class="caixa-aviso">${icone("alerta", 22)}<p>${negritarHoras(a.texto)}</p></div>`).join("");
 
-  return `
-    <header class="inicio-topo">
-      <div>
-        <span class="saudacao">Oi, vocês dois!</span>
-        <h1>${esc(R.titulo)}</h1>
-      </div>
-      <div class="topo-direita">
-        <span class="chip chip-aviso">${icone("ampulheta", 16)} ${esc(contagem())}</span>
-        ${depois ? "" : `<button type="button" class="botao-tempo" data-acao="tempo" aria-label="Previsão do tempo">${icone("solNuvem", 24)}<span data-temp>--°</span></button>`}
-      </div>
-    </header>
-
-    <div class="capa">
+  const capa = `<div class="capa">
       <img src="${foto("capa")}" alt="Vista de Belo Horizonte">
       <span class="adesivo">${icone("coracao", 15)} aniversário de casamento</span>
       <span class="capa-local">${icone("pino", 14)} BH · Ouro Preto · Mariana · Inhotim</span>
-    </div>
+    </div>`;
 
-    ${hoje ? `<section class="secao">
-      <a class="dia-grande cor-${hoje.cor}" href="#/dia/${hoje.id}">
-        <img src="${foto(hoje.foto)}" alt="">
-        <span class="chip">hoje</span>
-        <span class="heroi-texto"><h2>${esc(hoje.titulo)}</h2><p>${esc(hoje.resumo)}</p></span>
-      </a>
-    </section>` : ""}
-
-    <section class="secao">
+  const dias = `<section class="secao">
       <div class="secao-topo"><h2>Os dias</h2><span class="legenda">${dataCurta(R.inicio)} – ${dataCurta(R.fim)}</span></div>
       ${bolasDosDias(hoje ? hoje.id : null)}
-    </section>
+    </section>`;
 
-    <section class="secao">${cardVoo()}</section>
+  // Durante a viagem: sem capa; o dia de hoje vem primeiro, com o botão para o roteiro.
+  const corpo = hoje
+    ? `<section class="secao secao-hoje">
+        <a class="dia-grande cor-${hoje.cor}" href="#/dia/${hoje.id}">
+          <img src="${foto(hoje.foto)}" alt="">
+          <span class="chip">hoje</span>
+          <span class="heroi-texto"><h2>${esc(hoje.titulo)}</h2><p>${esc(hoje.resumoInicio || hoje.resumo)}</p></span>
+        </a>
+      </section>
+      ${dias}
+      <section class="secao cor-${hoje.cor}"><a class="botao botao-cheio" href="#/dia/${hoje.id}">${icone("calendario", 20)} Ver o roteiro de hoje</a></section>
+      ${hoje.voo ? `<section class="secao">${cardVoo(hoje.voo)}</section>` : ""}
+      ${hoje.chegada ? blocoChegada(hoje) : ""}
+      ${blocoAvisos()}`
+    : `${capa}${dias}${antes ? blocoAntesDeIr() : ""}${blocoAvisos()}`;
 
-    ${avisos ? `<section class="secao"><div class="secao-topo"><h2>Atenção</h2><a class="legenda" href="#/avisos">ver tudo</a></div>${avisos}</section>` : ""}
-
+  return `
+    <header class="inicio-topo">
+      <div class="inicio-titulo">
+        <span class="saudacao">Oi, vocês dois!</span>
+        <h1>${esc(R.titulo)}</h1>
+        <span class="chip chip-aviso">${icone("ampulheta", 16)} ${esc(contagem())}</span>
+      </div>
+      ${depois ? "" : botaoTempo()}
+    </header>
+    ${corpo}
     <p class="creditos-link">${esc(R.subtitulo)}<br><a href="#/creditos">Créditos das fotos</a></p>`;
 }
 
-function cardVoo() {
-  if (!estado.abaVoo) estado.abaVoo = hojeISO() > R.voo.ida.data ? "volta" : "ida";
-  const v = R.voo[estado.abaVoo];
+// Card do voo: só nos dias da ida e da volta (e na tela desses dois dias).
+function cardVoo(aba) {
+  estado.abaVoo = aba;
+  const v = vooDe(aba);
   const ponta = (p) => `<div class="rota-ponta">
       <span class="rota-cod${p.cod ? "" : " vazio"}">${p.cod ? esc(p.cod) : "???"}</span>
       <span class="rota-hora">${p.hora ? esc(p.hora) : "--h--"}</span>
@@ -359,7 +483,8 @@ function cardVoo() {
     </div>
     <div class="chips">
       <span class="chip">${SEMANA[d.getDay()].slice(0, 3).replace(/^./, (c) => c.toUpperCase())}, ${dataCurta(v.data)}</span>
-      ${v.conexao ? `<span class="chip chip-aviso">${esc(v.conexao)}</span>` : ""}
+      <span class="chip ${v.conexao === "a confirmar" ? "chip-aviso" : "chip-cor"}">${v.conexao === "a confirmar" ? "direto ou com conexão? a confirmar" : esc(v.conexao)}</span>
+      ${v.numero ? `<span class="chip chip-borda">${esc(v.numero)}</span>` : ""}
     </div>
     <div class="rota">
       ${ponta(v.de)}
@@ -372,13 +497,62 @@ function cardVoo() {
           (l) => `<li class="cor-${l.cor}">
             <span class="bolinha">${icone(l.icone, 16)}</span>
             <span>${esc(l.texto)}</span>
-            <span class="chip chip-cor">${esc(l.valor)}</span>
+            <span class="chip chip-cor">${esc(l.icone === "conexao" ? v.conexao : l.valor)}</span>
           </li>`,
         )
         .join("")}
     </ul>
-    <a class="botao botao-cheio" href="${v.acompanhar}" target="_blank" rel="noopener">${icone("radar", 20)} Acompanhar voo</a>
+    <a class="botao botao-cheio" href="${v.numero ? `https://www.flightradar24.com/data/flights/${encodeURIComponent(v.numero.replace(/\s+/g, ""))}` : v.acompanhar}" target="_blank" rel="noopener">${icone("radar", 20)} Acompanhar voo</a>
+    <button type="button" class="link-editar" data-acao="editar-voo" data-aba="${aba}">Editar dados do voo</button>
   </div>`;
+}
+
+// ---------- Formulários (voo e hotel), guardados só neste celular ----------
+
+function campo(nome, rotulo, valor, extra = "") {
+  return `<label class="campo"><span>${esc(rotulo)}</span><input name="${nome}" value="${esc(valor || "")}" ${extra}></label>`;
+}
+
+function gavetaVoo(aba = "ida") {
+  const v = vooDe(aba);
+  const opcoes = ["a confirmar", "Direto", "Com conexão"];
+  abrirGaveta(`<div class="gaveta-topo"><h2 id="gaveta-titulo">Dados do voo</h2>${botaoFechar()}</div>
+    <div class="abas" role="group" aria-label="Ida ou volta">
+      ${["ida", "volta"].map((a) => `<button type="button" data-acao="editar-voo" data-aba="${a}" aria-pressed="${a === aba}">${a === "ida" ? "Ida" : "Volta"}</button>`).join("")}
+    </div>
+    <form class="formulario" data-form="voo" data-aba="${aba}">
+      <p class="legenda">${esc(dataLonga(v.data))}</p>
+      ${campo("numero", "Número do voo", v.numero, 'placeholder="ex.: AD 1234" autocomplete="off"')}
+      <div class="campos-dupla">${campo("deCod", "Sai de (aeroporto)", v.de.cod, 'placeholder="ex.: FOR" maxlength="4"')}${campo("deHora", "Saída", v.de.hora, 'placeholder="ex.: 19h10"')}</div>
+      ${campo("deCidade", "Cidade de saída", v.de.cidade === R.voo[aba].de.cidade && !R.voo[aba].de.cod ? "" : v.de.cidade)}
+      <div class="campos-dupla">${campo("paraCod", "Chega em (aeroporto)", v.para.cod, 'placeholder="ex.: CNF" maxlength="4"')}${campo("paraHora", "Chegada", v.para.hora, 'placeholder="ex.: 22h50"')}</div>
+      ${campo("paraCidade", "Cidade de chegada", v.para.cidade === R.voo[aba].para.cidade && !R.voo[aba].para.cod ? "" : v.para.cidade)}
+      <fieldset class="campo"><legend>Conexão</legend><div class="chips">
+        ${opcoes.map((o) => `<label class="chip opcao"><input type="radio" name="conexao" value="${o}"${o === v.conexao ? " checked" : ""}> ${o === "a confirmar" ? "A confirmar" : o}</label>`).join("")}
+      </div></fieldset>
+      <div class="nota">${icone("info", 20)}<p>Fica só neste celular. Não vai para a internet.</p></div>
+      <div class="botoes"><button type="button" class="botao" data-acao="fechar">Cancelar</button><button type="submit" class="botao botao-cheio">Salvar</button></div>
+    </form>`, "azulejo");
+}
+
+function gavetaHotel() {
+  const h = hotel() || {};
+  abrirGaveta(`<div class="gaveta-topo"><h2 id="gaveta-titulo">Seu hotel</h2>${botaoFechar()}</div>
+    <form class="formulario" data-form="hotel">
+      ${campo("nome", "Nome do hotel", h.nome, 'autocomplete="off"')}
+      ${campo("endereco", "Endereço", h.endereco, 'autocomplete="off"')}
+      <div class="nota">${icone("info", 20)}<p>Fica só neste celular. O endereço é usado no Mapa e no Uber.</p></div>
+      <div class="botoes"><button type="button" class="botao" data-acao="fechar">Cancelar</button><button type="submit" class="botao botao-cheio">Salvar</button></div>
+    </form>`, "azulejo");
+}
+
+function salvarFormulario(form) {
+  const dados = Object.fromEntries(new FormData(form).entries());
+  for (const k of Object.keys(dados)) dados[k] = dados[k].trim();
+  if (form.dataset.form === "voo") guardar(`voo:${form.dataset.aba}`, JSON.stringify(dados));
+  else guardar("hotel", JSON.stringify(dados));
+  fecharGaveta();
+  render();
 }
 
 function telaDia(dia, plano) {
@@ -401,7 +575,8 @@ function telaDia(dia, plano) {
     </div>
     <div class="dias-barra">${bolasDosDias(dia.id)}</div>
     <p class="resumo">${esc(dia.resumo)}</p>
-    ${dia.blocos.map((b) => (BLOCOS[b.tipo] ? BLOCOS[b.tipo](dia, b) : "")).join("")}
+    ${dia.voo ? `<section class="secao">${cardVoo(dia.voo)}</section>` : ""}
+    ${dia.blocos.map((b, n) => (BLOCOS[b.tipo] ? BLOCOS[b.tipo](dia, b, n) : "")).join("")}
   </div>`;
 }
 
@@ -504,23 +679,26 @@ async function gavetaLugar(diaId, itemId) {
   if (!item) return;
   const creditos = item.foto ? await carregarCreditos() : {};
   const c = item.foto && creditos[item.foto];
-  const h = horaDe(dia, item.nome);
+  const g = item.guia || { sub: item.sub, chips: [], ver: [] };
+  // Guia turístico do lugar. Dentro do Inhotim não tem Uber, só o mapa.
   const botoes = [];
   if (item.mapa) {
-    botoes.push(`<a class="botao" href="${linkMapa(item.mapa)}" target="_blank" rel="noopener">${icone("pino", 20)} Mapa</a>`);
-    botoes.push(`<a class="botao botao-cheio" href="${linkUber(item.mapa)}" target="_blank" rel="noopener">${icone("carro", 20)} Chamar Uber</a>`);
+    botoes.push(`<a class="botao" href="${linkMapa(item.mapa)}" target="_blank" rel="noopener">${icone("pino", 20)} ${item.dentro ? "Ver no mapa do Inhotim" : "Mapa"}</a>`);
+    if (!item.dentro) botoes.push(`<a class="botao botao-cheio" href="${linkUber(item.mapa)}" target="_blank" rel="noopener">${icone("carro", 20)} Chamar Uber</a>`);
   }
   abrirGaveta(
-    `${item.foto
-      ? `<div class="foto"><img src="${foto(item.foto)}" alt="${esc(item.nome)}">${botaoFechar()}</div>`
-      : `<div class="gaveta-topo"><span class="bolinha" style="width:64px;height:64px;border-radius:20px">${icone(item.icone, 32)}</span>${botaoFechar()}</div>`}
-    <div class="chips">
-      <span class="chip chip-borda">${esc(dia.semana)}, ${esc(dia.titulo)}</span>
-      ${h ? `<span class="chip chip-cor">${esc(h.hora)}${h.plano ? ` no plano ${esc(h.plano)}` : ""}</span>` : ""}
-      ${item.aoAr ? `<span class="chip chip-aviso">${icone("sol", 14)} ao ar livre</span>` : ""}
+    `<div class="foto">${item.foto
+      ? `<img src="${foto(item.foto)}" alt="${esc(item.nome)}">`
+      : `<span class="foto-icone">${icone(item.icone, 64)}</span>`}${botaoFechar()}</div>
+    <div class="guia-titulo">
+      <h2 id="gaveta-titulo">${esc(item.nome)}</h2>
+      <p class="legenda">${esc(g.sub)}</p>
     </div>
-    <h2 id="gaveta-titulo">${esc(item.nome)}</h2>
-    <p class="descricao">${esc(item.sub)}</p>
+    ${g.chips.length ? `<div class="chips">${g.chips.map(([ic, t], n) => `<span class="chip ${n ? "chip-cor" : ""}">${icone(ic, 14)} ${esc(t)}</span>`).join("")}</div>` : ""}
+    ${g.sobre ? `<p class="descricao">${esc(g.sobre)}</p>` : ""}
+    ${g.ver.length ? `<div class="guia-ver"><h3>Não deixe de ver</h3>
+      <ul class="lista-regras">${g.ver.map((t) => `<li>${icone("estrela", 18)}<span>${esc(t)}</span></li>`).join("")}</ul></div>` : ""}
+    ${g.dica ? `<div class="nota">${icone("info", 22)}<p><strong>Dica</strong>${esc(g.dica)}</p></div>` : ""}
     ${botoes.length ? `<div class="botoes">${botoes.join("")}</div>` : ""}
     ${c ? `<p class="credito">${textoCredito(c)}</p>` : ""}`,
     dia.cor,
@@ -551,9 +729,18 @@ async function previsao(dia) {
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${local.lat}&longitude=${local.lon}`
     + `&hourly=weather_code,precipitation_probability&daily=temperature_2m_max,temperature_2m_min`
     + `&timezone=America%2FSao_Paulo&start_date=${dia.data}&end_date=${dia.data}`;
-  const r = await fetch(url);
-  if (!r.ok) throw new Error("sem previsão");
-  const j = await r.json();
+  // Sem internet: usa a última previsão guardada no celular, avisando de quando ela é.
+  let j;
+  try {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error("sem previsão");
+    j = await r.json();
+  } catch (e) {
+    const salvo = lerJSON(`tempo:${chave}`);
+    if (!salvo) throw e;
+    estado.tempo[chave] = { ...salvo, offline: true };
+    return estado.tempo[chave];
+  }
   const horas = j.hourly.time.map((t, i) => ({ h: Number(t.slice(11, 13)), cod: j.hourly.weather_code[i], chance: j.hourly.precipitation_probability[i] ?? 0 }));
   const periodo = (nome, de, ate, noite) => {
     const trecho = horas.filter((x) => x.h >= de && x.h <= ate);
@@ -569,11 +756,13 @@ async function previsao(dia) {
     hora: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }).replace(":", "h"),
   };
   estado.tempo[chave] = p;
+  guardar(`tempo:${chave}`, JSON.stringify(p));
   return p;
 }
 
 function diaDoTempo() {
-  return diaDeHoje() || R.dias.find((d) => d.data >= hojeISO() && cenariosDoDia(d)) || R.dias[0];
+  // Antes da viagem, a previsão é a do dia da chegada: ainda não estamos em BH.
+  return diaDeHoje() || R.dias[0];
 }
 
 function fraseTempo(periodos) {
@@ -630,9 +819,11 @@ async function gavetaTempo(diaId) {
         <a class="botao" href="${plano.link}">${esc(plano.botao)}</a>
       </div>
       ${links}
-      <p class="credito">Previsão do <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>, buscada às ${p.hora}.</p>`;
+      ${p.offline
+        ? `<p class="caixa-aviso caixa-calma">${icone("info", 20)}<span>Sem internet agora. Esta é a previsão guardada, atualizada às ${p.hora}.</span></p>`
+        : `<p class="credito">Previsão do <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>, buscada às ${p.hora}.</p>`}`;
   } catch (e) {
-    corpo = `<p class="carregando">A previsão para este dia ainda não saiu, ou estamos sem internet. O radar e os alertas abrem no navegador.</p>${links}`;
+    corpo = `<p class="carregando">A previsão para este dia ainda não saiu, ou estamos sem internet. Quando o sinal voltar, ela aparece aqui.</p>${links}`;
   }
   if (gavetaAberta) abrirGaveta(`${topo}${escolha}${corpo}`);
 }
@@ -641,12 +832,14 @@ async function atualizarBotaoTempo() {
   const alvo = app.querySelector("[data-temp]");
   if (!alvo) return;
   const dia = diaDoTempo();
+  const rotulo = `${dia.semana} ${dataDe(dia.data).getDate()}`;
+  alvo.textContent = `${rotulo} · --°`;
   try {
     const p = await previsao(dia);
-    alvo.textContent = `${p.max}°`;
+    alvo.textContent = `${rotulo} · ${p.max}°`;
     alvo.parentElement.setAttribute("aria-label", `Tempo de ${SEMANA[dataDe(dia.data).getDay()]} em ${p.local}: máxima de ${p.max} graus. Abrir previsão`);
   } catch (e) {
-    alvo.textContent = "tempo";
+    alvo.textContent = `${rotulo} · tempo`;
   }
 }
 
@@ -711,9 +904,19 @@ document.addEventListener("click", (ev) => {
     else if (acao === "lugar") gavetaLugar(dia, id);
     else if (acao === "tempo") gavetaTempo(dia);
     else if (acao === "aba-voo") {
-      estado.abaVoo = alvo.dataset.aba;
-      document.getElementById("voo").outerHTML = cardVoo();
+      document.getElementById("voo").outerHTML = cardVoo(alvo.dataset.aba);
       document.querySelector(`[data-acao="aba-voo"][data-aba="${estado.abaVoo}"]`)?.focus();
+    } else if (acao === "editar-voo") gavetaVoo(alvo.dataset.aba || estado.abaVoo || "ida");
+    else if (acao === "editar-hotel") gavetaHotel();
+    else if (acao === "feito") {
+      const feito = alvo.getAttribute("aria-pressed") !== "true";
+      guardar(id, feito ? "1" : "0");
+      alvo.setAttribute("aria-pressed", String(feito));
+      alvo.closest("li").classList.toggle("feito", feito);
+    } else if (acao === "copiar") {
+      const texto = alvo.dataset.texto;
+      const pronto = () => { alvo.lastChild.textContent = " Copiado!"; setTimeout(() => (alvo.lastChild.textContent = " Copiar endereço"), 2000); };
+      navigator.clipboard?.writeText(texto).then(pronto, () => prompt("Copie o endereço:", texto));
     } else if (acao === "cenario") {
       const d = diaPorId(dia);
       guardar(`cenario:${d.id}`, id);
@@ -723,6 +926,13 @@ document.addEventListener("click", (ev) => {
     return;
   }
   if (ev.target === gavetaFundo) fecharGaveta();
+});
+
+document.addEventListener("submit", (ev) => {
+  const form = ev.target.closest("[data-form]");
+  if (!form) return;
+  ev.preventDefault();
+  salvarFormulario(form);
 });
 
 document.addEventListener("keydown", (ev) => {

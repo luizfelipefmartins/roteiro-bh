@@ -168,6 +168,7 @@ async function desenharFolha() {
     folha.appendChild(el);
   }
   if (!SCRAP.pecas.some((p) => p.tipo === "foto")) {
+    folha.insertAdjacentHTML("afterbegin", `<span class="espaco-foto" style="left:12%;top:24%;--rot:-5deg">+</span><span class="espaco-foto" style="left:54%;top:27%;--rot:6deg">+</span><span class="espaco-foto" style="left:28%;top:52%;--rot:3deg">+</span>`);
     folha.insertAdjacentHTML("beforeend", `<p class="folha-vazia">Toque em <strong>+ Foto</strong> para começar a colagem.</p>`);
   }
   document.getElementById("scrap-ferramentas").hidden = !SCRAP.selecionada;

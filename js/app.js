@@ -483,7 +483,14 @@ function blocoLembranca(dias) {
     ${dias}
     <section class="secao">
       <h2>Scrapbook da viagem</h2>
-      <a class="scrap-entrada" href="#/scrapbook"><span>Monte a colagem com as fotos de vocês, os lugares e os adesivos do app.</span><span class="botao botao-cheio">Abrir scrapbook</span></a>
+      <a class="scrap-entrada" href="#/scrapbook">
+        <span class="scrap-previa" aria-hidden="true">
+          ${["igrejinha-pampulha", "sao-francisco-op", "narcissus"].map((f) => `<span class="polaroid"><img src="${foto(f)}" alt="" loading="lazy"></span>`).join("")}
+          <span class="adesivo-mini">${icone("coracao", 13)} aniversário de casamento</span>
+        </span>
+        <span>Monte a colagem com as fotos de vocês, os lugares e os adesivos do app.</span>
+        <span class="botao botao-cheio">Abrir scrapbook</span>
+      </a>
     </section>
     <section class="secao">
       <div class="secao-topo"><h2>O que vocês viram</h2><span class="legenda">${lugares.length} lugares</span></div>

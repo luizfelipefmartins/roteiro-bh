@@ -546,7 +546,7 @@ img { display: block; max-width: 100%; }
 .fita-1 { background: rgba(169, 194, 245, 0.75); }
 .fita-2 { background: rgba(154, 221, 184, 0.75); }
 .peca.selecionada { outline: 2px dashed var(--forte); outline-offset: 4px; }
-.folha-vazia { position: absolute; left: 10%; right: 10%; top: 45%; text-align: center; color: var(--cinza); font-size: 14px; }
+.folha-vazia { position: absolute; left: 10%; right: 10%; top: 74%; text-align: center; color: var(--cinza); font-size: 14px; }
 .scrap-ferramentas { display: flex; justify-content: center; gap: var(--espaco-xs); }
 .scrap-ferramentas button { width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--linha); background: var(--branco); font-size: 18px; display: flex; align-items: center; justify-content: center; }
 .scrap-acoes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--espaco-xs); }
@@ -554,3 +554,16 @@ img { display: block; max-width: 100%; }
 .adesivos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--espaco-xs); }
 .adesivo-opcao { min-height: 64px; padding: var(--espaco-xs); border: 1.5px solid var(--linha); border-radius: var(--raio-lg); background: var(--creme); display: flex; align-items: center; justify-content: center; }
 .adesivo-opcao img { max-width: 100%; max-height: 56px; }
+.espaco-foto {
+  position: absolute; width: 38%; aspect-ratio: 140 / 116; transform: rotate(var(--rot));
+  border: 2px dashed #A9A2B8; border-radius: 10px; background: rgba(255, 255, 255, 0.7);
+  display: flex; align-items: center; justify-content: center; color: #A9A2B8; font: 800 28px var(--titulo); pointer-events: none;
+}
+.scrap-previa { position: relative; height: 150px; border-radius: var(--raio-xl); background: var(--creme); overflow: hidden; display: block; }
+.scrap-previa .polaroid { position: absolute; top: 18px; width: 30%; padding: 4px 4px 14px; background: #fff; box-shadow: 0 6px 14px rgba(43, 35, 64, 0.18); }
+.scrap-previa .polaroid img { width: 100%; aspect-ratio: 5 / 4; object-fit: cover; }
+.scrap-previa .polaroid:nth-child(1) { left: 6%; transform: rotate(-8deg); }
+.scrap-previa .polaroid:nth-child(2) { left: 34%; top: 10px; transform: rotate(4deg); }
+.scrap-previa .polaroid:nth-child(3) { left: 62%; transform: rotate(-3deg); }
+.adesivo-mini { position: absolute; left: 10%; bottom: 12px; transform: rotate(-4deg); padding: 6px 10px; border-radius: 10px; background: var(--adesivo); color: var(--tinta); font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 4px 10px rgba(43, 35, 64, 0.15); }
+.adesivo-mini .ic { color: var(--perigo); fill: var(--perigo); }

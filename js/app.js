@@ -445,6 +445,33 @@ function blocoChegada(dia) {
     </section>`;
 }
 
+// Depois da viagem, o início vira lembrança: nome da viagem, números, os dias, o que vocês viram
+// e o convite para a próxima andança (o app vai guardar todas as viagens).
+function blocoLembranca(dias) {
+  const v = R.viagem;
+  const lugares = R.dias.flatMap((d) => lugaresDoDia(d).map((i) => ({ ...i, dia: d })));
+  const feitas = R.dias.reduce((n, d) => n + d.blocos.reduce((m, b, k) => m + (b.tipo === "linha" ? b.itens.filter((_, i) => lembrar(`feito:${d.id}:${k}:${i}`) === "1").length : 0), 0), 0);
+  const numeros = [[R.dias.length, "dias"], [v.cidades, "cidades"], [lugares.length, "lugares"]];
+  if (feitas) numeros.push([feitas, "paradas feitas"]);
+  const mosaico = v.lembranca.map(([diaId, itemId]) => lugares.find((l) => l.dia.id === diaId && l.id === itemId)).filter(Boolean);
+  return `<section class="secao viagem-nome">
+      <h2>${esc(v.nome)}</h2>
+      <p class="legenda">${dataCurta(R.inicio)} – ${dataCurta(R.fim)} ${R.fim.slice(0, 4)} · ${esc(v.onde)}</p>
+      <div class="numeros">${numeros.map(([n, l]) => `<div class="numero"><strong>${n}</strong><span>${l}</span></div>`).join("")}</div>
+    </section>
+    ${dias}
+    <section class="secao">
+      <div class="secao-topo"><h2>O que vocês viram</h2><span class="legenda">${lugares.length} lugares</span></div>
+      <div class="mosaico">${mosaico
+        .map((l) => `<button type="button" class="mosaico-foto" data-acao="lugar" data-dia="${l.dia.id}" data-id="${l.id}">
+          <img src="${foto(l.foto)}" alt="" loading="lazy"><span>${esc(l.nome)}</span></button>`)
+        .join("")}</div>
+    </section>
+    <section class="secao">
+      <div class="proxima"><strong>+ Próxima andança</strong><span class="legenda">em breve: guarde aqui o roteiro da próxima viagem</span></div>
+    </section>`;
+}
+
 function botaoTempo() {
   return `<button type="button" class="botao-tempo" data-acao="tempo" aria-label="Previsão do tempo">${icone("solNuvem", 24)}<span data-temp>--°</span></button>`;
 }
@@ -479,13 +506,16 @@ function telaInicio() {
       ${hoje.voo ? `<section class="secao">${cardVoo(hoje.voo)}</section>` : ""}
       ${hoje.chegada ? blocoChegada(hoje) : ""}
       ${blocoAvisos()}`
-    : `${capa}${dias}${antes ? blocoAntesDeIr() : ""}${blocoAvisos()}`;
+    : depois
+      ? `${capa}${blocoLembranca(dias)}`
+      : `${capa}${dias}${antes ? blocoAntesDeIr() : ""}${blocoAvisos()}`;
 
   return `
     <header class="inicio-topo">
       <div class="inicio-titulo">
-        <span class="saudacao">Oi, vocês dois!</span>
-        <h1>${esc(R.titulo)}</h1>
+        ${depois
+          ? `<img class="logo-marca" src="img/logo-andancas.svg" alt="Andanças" width="150" height="41">`
+          : `<span class="saudacao">Oi, vocês dois!</span><h1>${esc(R.titulo)}</h1>`}
         <span class="chip chip-aviso">${icone("ampulheta", 16)} ${esc(contagem())}</span>
       </div>
       ${depois ? "" : botaoTempo()}

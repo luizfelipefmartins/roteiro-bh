@@ -500,3 +500,19 @@ img { display: block; max-width: 100%; }
 .voo-convite { display: flex; flex-direction: column; align-items: center; gap: var(--espaco-xs); text-align: center; padding: var(--espaco-xs) var(--espaco-md); }
 .voo-convite .bolinha { width: 40px; height: 40px; }
 .voo-convite strong { font-size: 17px; }
+
+/* Depois da viagem: lembrança */
+.logo-marca { width: 150px; height: auto; }
+.viagem-nome { gap: var(--espaco-2xs); padding-top: var(--espaco-md); }
+.viagem-nome h2 { font-size: 26px; }
+.numeros { display: grid; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: var(--espaco-xs); margin-top: var(--espaco-sm); }
+.numero { background: var(--branco); border-radius: var(--raio-xl); padding: var(--espaco-sm) var(--espaco-md); display: flex; flex-direction: column; }
+.numero strong { font-family: var(--titulo); font-weight: 800; font-size: 26px; line-height: 1.1; }
+.numero span { font-size: 13px; color: var(--cinza); }
+.mosaico { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--espaco-xs); }
+.mosaico-foto { position: relative; aspect-ratio: 4 / 3; border: 0; padding: 0; border-radius: var(--raio-xl); overflow: hidden; background: var(--forte); color: #fff; text-align: left; }
+.mosaico-foto img { width: 100%; height: 100%; object-fit: cover; }
+.mosaico-foto::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(20, 16, 12, 0) 45%, rgba(20, 16, 12, 0.75) 100%); }
+.mosaico-foto span { position: absolute; left: 10px; right: 10px; bottom: 10px; z-index: 1; font-size: 13px; font-weight: 700; }
+.proxima { border: 2px dashed var(--cinza); border-radius: var(--raio-xl); padding: var(--espaco-lg); display: flex; flex-direction: column; align-items: center; gap: var(--espaco-2xs); text-align: center; }
+.proxima strong { font-size: 17px; }

@@ -9,6 +9,14 @@ const ROTEIRO = {
   fim: "2026-11-03",
   subtitulo: "Aniversário de casamento entre pão de queijo, Niemeyer, barroco e arte contemporânea.",
 
+  // Tela de lembrança (depois da viagem). "lembranca" lista [dia, lugar] das fotos do mosaico.
+  viagem: {
+    nome: "Roteiro Mineiro a Dois",
+    onde: "BH, Ouro Preto, Mariana e Inhotim",
+    cidades: 4,
+    lembranca: [["d31", "igrejinha"], ["d31", "mercado"], ["d01", "sfop"], ["d01", "mariana"], ["d02", "kusama"], ["d02", "varejao"]],
+  },
+
   // Na tela de início aparecem só os avisos de hoje e de amanhã (campos "hoje" e "amanha").
   // Antes da viagem, os que têm "antes": true. A tela Avisos mostra todos, com "texto".
   avisos: [

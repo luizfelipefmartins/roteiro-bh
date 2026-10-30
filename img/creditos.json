@@ -118,5 +118,53 @@
     "autor": "régine debatty",
     "licenca": "CC BY-SA 2.0",
     "fonte": "https://commons.wikimedia.org/wiki/File:Inhotim_Troca-Troca_02.jpg"
+  },
+  "xapuri": {
+    "arquivo": "Restaurante em Xapuri 01.jpg",
+    "autor": "whitiebrass",
+    "licenca": "CC BY 2.0",
+    "fonte": "https://commons.wikimedia.org/wiki/File:Restaurante_em_Xapuri_01.jpg"
+  },
+  "pilar": {
+    "arquivo": "Igreja Matriz de Nossa Senhora do Pilar - Ouro Preto - nave.jpg",
+    "autor": "Ricardo André Frantz",
+    "licenca": "CC BY 3.0",
+    "fonte": "https://commons.wikimedia.org/wiki/File:Igreja_Matriz_de_Nossa_Senhora_do_Pilar_-_Ouro_Preto_-_nave.jpg"
+  },
+  "mina-chico-rei": {
+    "arquivo": "PedroVilela Mina do Chico Rei Ouro Preto MG (26995676078).jpg",
+    "autor": "Pedro Vilela/MTur",
+    "licenca": "Domínio público",
+    "fonte": "https://commons.wikimedia.org/wiki/File:PedroVilela_Mina_do_Chico_Rei_Ouro_Preto_MG_(26995676078).jpg"
+  },
+  "inconfidencia": {
+    "arquivo": "Museu da Inconfidência Ouro Preto,MG.jpg",
+    "autor": "Alex costa maciel",
+    "licenca": "CC BY-SA 4.0",
+    "fonte": "https://commons.wikimedia.org/wiki/File:Museu_da_Inconfid%C3%AAncia_Ouro_Preto,MG.jpg"
+  },
+  "pedra-sabao": {
+    "arquivo": "Feira de artesanato em pedra sabão no Largo de Coimbra, Ouro Preto, Minas Gerais.jpg",
+    "autor": "EricaAzzellini",
+    "licenca": "CC BY-SA 4.0",
+    "fonte": "https://commons.wikimedia.org/wiki/File:Feira_de_artesanato_em_pedra_sab%C3%A3o_no_Largo_de_Coimbra,_Ouro_Preto,_Minas_Gerais.jpg"
+  },
+  "inhotim-lago": {
+    "arquivo": "Inhotim 3.jpg",
+    "autor": "Vinicius Depizzol",
+    "licenca": "CC BY-SA 2.0",
+    "fonte": "https://commons.wikimedia.org/wiki/File:Inhotim_3.jpg"
+  },
+  "inhotim-jardim": {
+    "arquivo": "Inhotim Árvore.JPG",
+    "autor": "LíviaBuhring",
+    "licenca": "CC BY-SA 3.0",
+    "fonte": "https://commons.wikimedia.org/wiki/File:Inhotim_%C3%81rvore.JPG"
+  },
+  "penone-rotterdam": {
+    "arquivo": "Giuseppe Penone - Elevazione - 2001 - Rotterdam 01.jpg",
+    "autor": "Sandra Fauconnier",
+    "licenca": "CC BY 4.0",
+    "fonte": "https://commons.wikimedia.org/wiki/File:Giuseppe_Penone_-_Elevazione_-_2001_-_Rotterdam_01.jpg"
   }
 }

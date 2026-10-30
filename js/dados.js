@@ -194,7 +194,7 @@ const ROTEIRO = {
               },
             },
             {
-              id: "xapuri", nome: "Xapuri", sub: "almoço mineiro", mapa: "Restaurante Xapuri Belo Horizonte", icone: "panela",
+              id: "xapuri", nome: "Xapuri", sub: "almoço mineiro", foto: "xapuri", mapa: "Restaurante Xapuri Belo Horizonte",
               guia: {
                 sub: "Pampulha · comida mineira no fogão a lenha",
                 chips: [["relogio", "Sáb 11h–22h"], ["estrela", "Música ao vivo no almoço"]],
@@ -340,7 +340,7 @@ const ROTEIRO = {
           titulo: "No caminho",
           itens: [
             {
-              id: "pilar", nome: "Igreja do Pilar", sub: "ouro por todo lado", mapa: "Igreja Matriz Nossa Senhora do Pilar Ouro Preto", icone: "igreja",
+              id: "pilar", nome: "Igreja do Pilar", sub: "ouro por todo lado", foto: "pilar", mapa: "Igreja Matriz Nossa Senhora do Pilar Ouro Preto",
               guia: {
                 sub: "Ouro Preto · Basílica de Nossa Senhora do Pilar",
                 chips: [["relogio", "Dom 9h–10h45 e 12h–16h45"], ["estrela", "Ingresso com Museu de Arte Sacra"]],
@@ -350,7 +350,7 @@ const ROTEIRO = {
               },
             },
             {
-              id: "mina", nome: "Mina de ouro", sub: "a agência confirma qual", icone: "picareta",
+              id: "mina", nome: "Mina de ouro", sub: "a agência confirma qual", foto: "mina-chico-rei", fotoNota: "Foto ilustrativa: Mina do Chico Rei, em Ouro Preto. A agência confirma qual mina.",
               guia: {
                 sub: "Mina do século XVIII · qual? a confirmar",
                 chips: [["estrela", "Ingresso R$ 80 (agência)"], ["mochila", "Leve agasalho"]],
@@ -370,7 +370,7 @@ const ROTEIRO = {
               },
             },
             {
-              id: "inconfidencia", nome: "Museu da Inconfidência", sub: "Praça Tiradentes", mapa: "Museu da Inconfidência", icone: "coluna",
+              id: "inconfidencia", nome: "Museu da Inconfidência", sub: "Praça Tiradentes", foto: "inconfidencia", mapa: "Museu da Inconfidência",
               guia: {
                 sub: "Praça Tiradentes",
                 chips: [["relogio", "Dom 10h–18h (entrada até 17h)"], ["estrela", "Grátis"]],
@@ -380,7 +380,7 @@ const ROTEIRO = {
               },
             },
             {
-              id: "pedrasabao", nome: "Pedra-sabão", sub: "artesanato", mapa: "Feira de pedra-sabão Largo de Coimbra Ouro Preto", icone: "pote",
+              id: "pedrasabao", nome: "Pedra-sabão", sub: "artesanato", foto: "pedra-sabao", mapa: "Feira de pedra-sabão Largo de Coimbra Ouro Preto",
               guia: {
                 sub: "Largo de Coimbra · feira de artesanato",
                 chips: [["sol", "Ao ar livre"], ["relogio", "Todo dia, horário a confirmar"]],
@@ -472,7 +472,7 @@ const ROTEIRO = {
               },
             },
             {
-              id: "cosmococa", nome: "Cosmococa", sub: "Ambientes de Hélio Oiticica e Neville D'Almeida, ao lado da Kusama.", icone: "espiral", mapa: "Galeria Cosmococa Inhotim",
+              id: "cosmococa", nome: "Cosmococa", sub: "Ambientes de Hélio Oiticica e Neville D'Almeida, ao lado da Kusama.", foto: "inhotim-lago", fotoNota: "Foto ilustrativa: lago do Inhotim. Não há foto livre da galeria Cosmococa.", mapa: "Galeria Cosmococa Inhotim",
               guia: {
                 sub: "Hélio Oiticica e Neville D'Almeida",
                 chips: [["estrela", "Ao lado da Kusama"], ["relogio", "Uns 40 min no roteiro"]],
@@ -492,7 +492,7 @@ const ROTEIRO = {
               },
             },
             {
-              id: "pape", nome: "Lygia Pape", sub: "Ttéia 1 C: fios dourados, luz e escuridão.", icone: "fios", mapa: "Galeria Lygia Pape Inhotim",
+              id: "pape", nome: "Lygia Pape", sub: "Ttéia 1 C: fios dourados, luz e escuridão.", foto: "inhotim-jardim", fotoNota: "Foto ilustrativa: jardins do Inhotim. Não há foto livre da galeria Lygia Pape.", mapa: "Galeria Lygia Pape Inhotim",
               guia: {
                 sub: "Ttéia 1 C (2002) · Rizoma Arquitetura, 2012",
                 chips: [["estrela", "Uma obra só, numa sala escura"], ["relogio", "Visita rápida"]],
@@ -502,7 +502,7 @@ const ROTEIRO = {
               },
             },
             {
-              id: "tunga", nome: "Psicoativa Tunga", sub: "Pavilhão de vidro no meio da mata.", icone: "vidro", mapa: "Galeria Psicoativa Tunga Inhotim",
+              id: "tunga", nome: "Psicoativa Tunga", sub: "Pavilhão de vidro no meio da mata.", foto: "inhotim", fotoNota: "Foto ilustrativa: Jardim Botânico do Inhotim. Não há foto livre da galeria Psicoativa Tunga.", mapa: "Galeria Psicoativa Tunga Inhotim",
               guia: {
                 sub: "Rizoma Arquitetura · 2012",
                 chips: [["estrela", "Uma das maiores galerias"], ["carro", "Ir de carrinho"]],
@@ -531,7 +531,7 @@ const ROTEIRO = {
               "Matthew Barney, De lama lâmina: impactante, mas longe.",
             ],
           },
-          // Tocar numa obra troca a foto do topo. Sem foto livre (Penone), fica o ícone.
+          // Tocar numa obra troca a foto do topo. Todo card tem foto; quando não é a do lugar, a fotoNota avisa.
           caminho: {
             titulo: "Para fotografar no caminho",
             itens: [
@@ -540,7 +540,7 @@ const ROTEIRO = {
               { nome: "Beam Drop, Chris Burden", foto: "beam-drop" },
               { nome: "Troca-troca, Jarbas Lopes", foto: "troca-troca" },
               { nome: "Narcissus Garden, Yayoi Kusama", foto: "narcissus" },
-              { nome: "Elevazione, Giuseppe Penone", icone: "arvore" },
+              { nome: "Elevazione, Giuseppe Penone", foto: "penone-rotterdam", fotoNota: "Outra Elevazione de Penone, em Rotterdam: não há foto livre da obra do Inhotim." },
             ],
           },
         },

@@ -150,8 +150,9 @@ async function carregarCreditos() {
   return estado.creditos;
 }
 
-function textoCredito(c) {
-  return `Foto: <a href="${esc(c.fonte)}" target="_blank" rel="noopener">${esc(c.autor)}</a>, ${esc(c.licenca)}, Wikimedia Commons`;
+// nota: quando a foto não é do próprio lugar (foto ilustrativa ou outra versão da obra).
+function textoCredito(c, nota) {
+  return `${nota ? `<strong>${esc(nota)}</strong> ` : ""}Foto: <a href="${esc(c.fonte)}" target="_blank" rel="noopener">${esc(c.autor)}</a>, ${esc(c.licenca)}, Wikimedia Commons`;
 }
 
 // ---------- Peças ----------
@@ -345,7 +346,7 @@ function cartaoCaminho(c, escolhida) {
   return `${obra.foto
       ? `<img src="${foto(obra.foto)}" alt="${esc(obra.nome)}" loading="lazy">`
       : `<span class="caminho-icone" role="img" aria-label="${esc(obra.nome)}: sem foto">${icone(obra.icone, 56)}</span>`}
-    ${obra.foto ? `<p class="credito" data-credito="${obra.foto}"></p>` : ""}
+    ${obra.foto ? `<p class="credito" data-credito="${obra.foto}"${obra.fotoNota ? ` data-nota="${esc(obra.fotoNota)}"` : ""}></p>` : ""}
     <ul class="caminho-lista">${c.itens
       .map((o, n) => `<li><button type="button" data-acao="obra" data-n="${n}" aria-pressed="${n === escolhida}">
         ${icone("camera", 18)}<span>${esc(o.nome)}</span></button></li>`)
@@ -356,7 +357,7 @@ async function preencherCreditos(raiz = document) {
   const alvos = raiz.querySelectorAll("[data-credito]");
   if (!alvos.length) return;
   const creditos = await carregarCreditos();
-  alvos.forEach((p) => { const c = creditos[p.dataset.credito]; if (c) p.innerHTML = textoCredito(c); });
+  alvos.forEach((p) => { const c = creditos[p.dataset.credito]; if (c) p.innerHTML = textoCredito(c, p.dataset.nota); });
 }
 
 // ---------- Telas ----------
@@ -718,7 +719,7 @@ async function gavetaLugar(diaId, itemId) {
       <ul class="lista-regras">${g.ver.map((t) => `<li>${icone("estrela", 18)}<span>${esc(t)}</span></li>`).join("")}</ul></div>` : ""}
     ${g.dica ? `<div class="nota">${icone("info", 22)}<p><strong>Dica</strong>${esc(g.dica)}</p></div>` : ""}
     ${botoes.length ? `<div class="botoes">${botoes.join("")}</div>` : ""}
-    ${c ? `<p class="credito">${textoCredito(c)}</p>` : ""}`,
+    ${c ? `<p class="credito">${textoCredito(c, item.fotoNota)}</p>` : ""}`,
     dia.cor,
   );
 }

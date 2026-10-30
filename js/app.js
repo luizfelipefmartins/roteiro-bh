@@ -3,6 +3,8 @@
 // Para testar outra data: ?hoje=2026-10-31
 
 const R = ROTEIRO;
+// Mesmo número do ?v= no index.html e da VERSAO no sw.js; aparece no rodapé para conferir se a versão nova chegou.
+const VERSAO_APP = 19;
 const app = document.getElementById("app");
 
 const MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
@@ -561,7 +563,7 @@ function telaInicio() {
       ${depois ? "" : botaoTempo()}
     </header>
     ${corpo}
-    <p class="creditos-link">${esc(R.subtitulo)}<br><a href="#/creditos">Créditos das fotos</a></p>`;
+    <p class="creditos-link">${esc(R.subtitulo)}<br><a href="#/creditos">Créditos das fotos</a><br><span class="versao">versão ${VERSAO_APP}</span></p>`;
 }
 
 // Card do voo: só nos dias da ida e da volta (e na tela desses dois dias).
@@ -1021,6 +1023,8 @@ async function render() {
   }
 
   app.innerHTML = html;
+  // No scrapbook a barra de navegação some: ela cobriria os botões de baixo (+ Foto, Salvar imagem).
+  document.body.classList.toggle("sem-nav", rota === "scrapbook");
   if (rota === "scrapbook") iniciarScrapbook();
   document.title = titulo;
   atualizarNav(rota, id);

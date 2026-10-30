@@ -478,7 +478,7 @@ function telaHub() {
 function blocoLembranca(dias) {
   const v = R.viagem;
   const lugares = R.dias.flatMap((d) => lugaresDoDia(d).map((i) => ({ ...i, dia: d })));
-  const feitas = R.dias.reduce((n, d) => n + d.blocos.reduce((m, b, k) => m + (b.tipo === "linha" ? b.itens.filter((_, i) => lembrar(`feito:${d.id}:${k}:${i}`) === "1").length : 0), 0), 0);
+  const feitas = paradasFeitas();
   const numeros = [[R.dias.length, "dias"], [v.cidades, "cidades"], [lugares.length, "lugares"]];
   if (feitas) numeros.push([feitas, "paradas feitas"]);
   const mosaico = v.lembranca.map(([diaId, itemId]) => lugares.find((l) => l.dia.id === diaId && l.id === itemId)).filter(Boolean);

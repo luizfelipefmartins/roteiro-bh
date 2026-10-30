@@ -96,7 +96,18 @@ function vooDe(aba) {
     conexao: s.conexao || base.conexao,
     de: { cod: s.deCod || base.de.cod, hora: s.deHora || base.de.hora, cidade: s.deCidade || base.de.cidade },
     para: { cod: s.paraCod || base.para.cod, hora: s.paraHora || base.para.hora, cidade: s.paraCidade || base.para.cidade },
+    conex: { cod: s.conexCod || "", numero: s.conexNumero || "", chega: s.conexChega || "", sai: s.conexSai || "" },
   };
+}
+
+// Texto da conexão no card: "BSB · 1h25 de espera" (a espera sai das horas de chegada e saída).
+function textoConexao(v) {
+  if (v.conexao !== "Com conexão" || !v.conex.cod) return v.conexao;
+  const min = (h) => { const m = /^(\d{2})h(\d{2})$/.exec(h || ""); return m ? Number(m[1]) * 60 + Number(m[2]) : null; };
+  const a = min(v.conex.chega), b = min(v.conex.sai);
+  if (a === null || b === null) return v.conex.cod;
+  const espera = (b - a + 1440) % 1440;
+  return `${v.conex.cod} · ${Math.floor(espera / 60)}h${String(espera % 60).padStart(2, "0")} de espera`;
 }
 
 function hotel() {
@@ -517,7 +528,7 @@ function cardVoo(aba) {
     </div>
     <div class="chips">
       <span class="chip">${SEMANA[d.getDay()].slice(0, 3).replace(/^./, (c) => c.toUpperCase())}, ${dataCurta(v.data)}</span>
-      <span class="chip ${v.conexao === "a confirmar" ? "chip-aviso" : "chip-cor"}">${v.conexao === "a confirmar" ? "direto ou com conexão? a confirmar" : esc(v.conexao)}</span>
+      <span class="chip ${v.conexao === "a confirmar" ? "chip-aviso" : "chip-cor"}">${v.conexao === "a confirmar" ? "direto ou com conexão? a confirmar" : esc(textoConexao(v))}</span>
       ${v.numero ? `<span class="chip chip-borda">${esc(v.numero)}</span>` : ""}
     </div>
     <div class="rota">
@@ -531,7 +542,7 @@ function cardVoo(aba) {
           (l) => `<li class="cor-${l.cor}">
             <span class="bolinha">${icone(l.icone, 16)}</span>
             <span>${esc(l.texto)}</span>
-            <span class="chip chip-cor">${esc(l.icone === "conexao" ? v.conexao : l.valor)}</span>
+            <span class="chip chip-cor">${esc(l.icone === "conexao" ? textoConexao(v) : l.valor)}</span>
           </li>`,
         )
         .join("")}
@@ -564,6 +575,10 @@ function gavetaVoo(aba = "ida") {
       <fieldset class="campo"><legend>Conexão</legend><div class="chips">
         ${opcoes.map((o) => `<label class="chip opcao"><input type="radio" name="conexao" value="${o}"${o === v.conexao ? " checked" : ""}> ${o === "a confirmar" ? "A confirmar" : o}</label>`).join("")}
       </div></fieldset>
+      <div class="conexao-campos"${v.conexao === "Com conexão" ? "" : " hidden"}>
+        <div class="campos-dupla">${campo("conexCod", "Aeroporto da conexão", v.conex.cod, 'placeholder="ex.: BSB" maxlength="3" autocapitalize="characters" data-formato="aeroporto"')}${campo("conexNumero", "Segundo voo", v.conex.numero, 'placeholder="ex.: AD 5678" autocomplete="off" autocapitalize="characters" maxlength="8" data-formato="voo"')}</div>
+        <div class="campos-dupla">${campo("conexChega", "Chega na conexão", v.conex.chega, 'placeholder="ex.: 13h20" inputmode="numeric" maxlength="5" data-formato="hora"')}${campo("conexSai", "Sai da conexão", v.conex.sai, 'placeholder="ex.: 14h45" inputmode="numeric" maxlength="5" data-formato="hora"')}</div>
+      </div>
       <div class="nota">${icone("info", 20)}<p>Fica só neste celular. Não vai para a internet.</p></div>
       <div class="botoes"><button type="button" class="botao" data-acao="fechar">Cancelar</button><button type="submit" class="botao botao-cheio">Salvar</button></div>
     </form>`, "azulejo");
@@ -584,7 +599,7 @@ function salvarFormulario(form) {
   const dados = Object.fromEntries(new FormData(form).entries());
   for (const k of Object.keys(dados)) dados[k] = dados[k].trim();
   // Hora digitada pela metade vira hora cheia: "7" → "07h00", "19h3" → "19h30".
-  for (const k of ["deHora", "paraHora"]) {
+  for (const k of ["deHora", "paraHora", "conexChega", "conexSai"]) {
     const m = (dados[k] || "").match(/^(\d{1,2})(?:h(\d?))?$/);
     if (m) dados[k] = `${m[1].padStart(2, "0")}h${(m[2] || "0").padEnd(2, "0")}`;
   }
@@ -1023,6 +1038,13 @@ const FORMATOS = {
     return `${String(h).padStart(2, "0")}h${m.length === 2 ? String(Math.min(Number(m), 59)).padStart(2, "0") : m}`;
   },
 };
+// Os campos da conexão só aparecem quando a pessoa escolhe "Com conexão".
+document.addEventListener("change", (ev) => {
+  if (ev.target.name !== "conexao") return;
+  const campos = ev.target.form?.querySelector(".conexao-campos");
+  if (campos) campos.hidden = ev.target.value !== "Com conexão";
+});
+
 document.addEventListener("input", (ev) => {
   const f = FORMATOS[ev.target.dataset?.formato];
   if (!f || ev.inputType === "deleteContentBackward") return;

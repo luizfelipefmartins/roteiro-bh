@@ -482,6 +482,10 @@ function blocoLembranca(dias) {
     </section>
     ${dias}
     <section class="secao">
+      <h2>Scrapbook da viagem</h2>
+      <a class="scrap-entrada" href="#/scrapbook"><span>Monte a colagem com as fotos de vocês, os lugares e os adesivos do app.</span><span class="botao botao-cheio">Abrir scrapbook</span></a>
+    </section>
+    <section class="secao">
       <div class="secao-topo"><h2>O que vocês viram</h2><span class="legenda">${lugares.length} lugares</span></div>
       <div class="mosaico">${mosaico
         .map((l) => `<button type="button" class="mosaico-foto" data-acao="lugar" data-dia="${l.dia.id}" data-id="${l.id}">
@@ -988,6 +992,9 @@ async function render() {
   } else if (rota === "creditos") {
     html = telaCreditos(await carregarCreditos());
     titulo = `Créditos · ${R.titulo}`;
+  } else if (rota === "scrapbook") {
+    html = telaScrapbook();
+    titulo = "Scrapbook · Andanças";
   } else if (rota === "andancas" || (rota === "" && !diaDeHoje())) {
     // Fora da viagem, o app abre no hub; durante a viagem, direto no "hoje".
     html = telaHub();
@@ -997,6 +1004,7 @@ async function render() {
   }
 
   app.innerHTML = html;
+  if (rota === "scrapbook") iniciarScrapbook();
   document.title = titulo;
   atualizarNav(rota, id);
 
@@ -1012,6 +1020,8 @@ async function render() {
 // ---------- Eventos ----------
 
 document.addEventListener("click", (ev) => {
+  const ferramenta = ev.target.closest("[data-scrap]");
+  if (ferramenta) { acaoScrapbook(ferramenta.dataset.scrap); return; }
   const alvo = ev.target.closest("[data-acao]");
   if (alvo) {
     const { acao, dia, id } = alvo.dataset;
@@ -1023,6 +1033,9 @@ document.addEventListener("click", (ev) => {
       document.querySelector(`[data-acao="aba-voo"][data-aba="${estado.abaVoo}"]`)?.focus();
     } else if (acao === "editar-voo") gavetaVoo(alvo.dataset.aba || estado.abaVoo || "ida");
     else if (acao === "editar-hotel") gavetaHotel();
+    else if (acao === "scrap-adesivo") gavetaAdesivos();
+    else if (acao === "scrap-colar") { colarAdesivo(Number(alvo.dataset.n)); desenharFolha(); }
+    else if (acao === "scrap-salvar") salvarScrapbook(alvo);
     else if (acao === "obra") {
       const cartao = alvo.closest(".caminho");
       const bloco = diaPorId(cartao.dataset.dia).blocos.find((x) => x.caminho);

@@ -531,3 +531,26 @@ img { display: block; max-width: 100%; }
 .trilha { display: flex; align-items: center; gap: 6px; }
 .trilha i { width: 8px; height: 8px; border-radius: 50%; background: #fff; }
 .trilha b { width: 16px; height: 16px; border-radius: 50%; background: var(--adesivo); }
+
+/* Scrapbook da viagem */
+.scrap-entrada { display: flex; flex-direction: column; gap: var(--espaco-sm); padding: var(--espaco-md); border-radius: var(--raio-xl); background: var(--creme-2); color: var(--tinta-2); text-decoration: none; }
+.scrap-entrada .botao { background: var(--tinta); border-color: var(--tinta); }
+.folha {
+  position: relative; width: 100%; aspect-ratio: 358 / 600; border-radius: var(--raio-xl); overflow: hidden;
+  background: var(--creme-2); box-shadow: inset 0 2px 8px rgba(43, 35, 64, 0.06); touch-action: none;
+}
+.peca { position: absolute; cursor: grab; user-select: none; -webkit-user-select: none; }
+.peca img { display: block; width: 100%; height: auto; pointer-events: none; -webkit-user-drag: none; }
+.peca-foto { background: #fff; padding: 5% 5% 14%; box-shadow: 0 6px 14px rgba(43, 35, 64, 0.18); }
+.fita { position: absolute; top: -9px; left: 30%; width: 40%; height: 18px; background: rgba(255, 217, 90, 0.75); }
+.fita-1 { background: rgba(169, 194, 245, 0.75); }
+.fita-2 { background: rgba(154, 221, 184, 0.75); }
+.peca.selecionada { outline: 2px dashed var(--forte); outline-offset: 4px; }
+.folha-vazia { position: absolute; left: 10%; right: 10%; top: 45%; text-align: center; color: var(--cinza); font-size: 14px; }
+.scrap-ferramentas { display: flex; justify-content: center; gap: var(--espaco-xs); }
+.scrap-ferramentas button { width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--linha); background: var(--branco); font-size: 18px; display: flex; align-items: center; justify-content: center; }
+.scrap-acoes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--espaco-xs); }
+.scrap-acoes .botao { min-height: 52px; font-size: 14px; padding: 0 var(--espaco-xs); cursor: pointer; }
+.adesivos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--espaco-xs); }
+.adesivo-opcao { min-height: 64px; padding: var(--espaco-xs); border: 1.5px solid var(--linha); border-radius: var(--raio-lg); background: var(--creme); display: flex; align-items: center; justify-content: center; }
+.adesivo-opcao img { max-width: 100%; max-height: 56px; }

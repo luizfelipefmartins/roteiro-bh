@@ -4,7 +4,7 @@
 
 const R = ROTEIRO;
 // Mesmo número do ?v= no index.html e da VERSAO no sw.js; aparece no rodapé para conferir se a versão nova chegou.
-const VERSAO_APP = 19;
+const VERSAO_APP = 20;
 const app = document.getElementById("app");
 
 const MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
@@ -103,8 +103,9 @@ function vooDe(aba) {
     data: /^\d{4}-\d{2}-\d{2}$/.test(s.data || "") ? s.data : base.data,
     numero: s.numero || "",
     conexao: s.conexao || base.conexao,
-    de: { cod: s.deCod || base.de.cod, hora: s.deHora || base.de.hora, cidade: s.deCidade || base.de.cidade },
-    para: { cod: s.paraCod || base.para.cod, hora: s.paraHora || base.para.hora, cidade: s.paraCidade || base.para.cidade },
+    // Aeroporto digitado sem cidade: não mostra a cidade de partida do roteiro ("origem a confirmar").
+    de: { cod: s.deCod || base.de.cod, hora: s.deHora || base.de.hora, cidade: s.deCidade || (s.deCod && s.deCod !== base.de.cod ? "" : base.de.cidade) },
+    para: { cod: s.paraCod || base.para.cod, hora: s.paraHora || base.para.hora, cidade: s.paraCidade || (s.paraCod && s.paraCod !== base.para.cod ? "" : base.para.cidade) },
     conex: { cod: s.conexCod || "", numero: s.conexNumero || "", chega: s.conexChega || "", sai: s.conexSai || "" },
   };
 }
@@ -600,7 +601,7 @@ function cardVoo(aba) {
     </div>
     <div class="chips">
       <span class="chip">${SEMANA[d.getDay()].slice(0, 3).replace(/^./, (c) => c.toUpperCase())}, ${dataCurta(v.data)}</span>
-      <span class="chip ${v.conexao === "a confirmar" ? "chip-aviso" : "chip-cor"}">${v.conexao === "a confirmar" ? "direto ou com conexão? a confirmar" : esc(textoConexao(v))}</span>
+      <span class="chip ${v.conexao === "a confirmar" ? "chip-aviso" : "chip-cor"}">${v.conexao === "a confirmar" ? "direto ou com conexão? a confirmar" : esc(v.detalhes.some((l) => l.icone === "conexao") ? v.conexao.toLowerCase() : textoConexao(v))}</span>
       ${v.numero ? `<span class="chip chip-borda">${esc(v.numero)}</span>` : ""}
     </div>
     <div class="rota">

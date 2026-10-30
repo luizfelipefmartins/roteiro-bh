@@ -686,7 +686,7 @@ function telaDia(dia, plano) {
   return `<div class="cor-${dia.cor}">
     <div class="heroi">
       <img src="${foto(dia.foto)}" alt="">
-      <a class="redondo" href="#/" aria-label="Voltar ao início">${icone("voltar", 20)}</a>
+      <a class="redondo" href="${estado.origem || "#/viagem"}" aria-label="Voltar">${icone("voltar", 20)}</a>
       <div class="heroi-texto">
         <span class="heroi-data">${esc(dataLonga(dia.data))}</span>
         <h1>${esc(dia.titulo)}</h1>
@@ -990,6 +990,9 @@ function atualizarNav(rota, id) {
 async function render() {
   if (gavetaAberta) fecharGaveta(true);
   const [, rota = "", id, plano] = location.hash.replace(/^#/, "").split("/");
+  // A seta de voltar da tela do dia leva para a última tela fora dos dias (início, Os dias, Avisos).
+  // Trocar de dia pela fileira não muda esse destino.
+  if (rota !== "dia") estado.origem = rota === "" ? "#/viagem" : location.hash;
   let html;
   let titulo = `${R.titulo} · Andanças`;
 

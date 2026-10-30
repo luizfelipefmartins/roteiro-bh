@@ -22,12 +22,18 @@ function bancoFotos() {
 
 async function fotoGuardar(id, blob) {
   const db = await bancoFotos();
-  await new Promise((ok, erro) => { const tx = db.transaction("fotos", "readwrite"); tx.objectStore("fotos").put(blob, id); tx.oncomplete = ok; tx.onerror = () => erro(tx.error); });
+  // Guarda os bytes da foto (ArrayBuffer): algumas versões do Safari falham ao guardar Blob no IndexedDB.
+  const dados = { buf: await blob.arrayBuffer(), tipo: blob.type || "image/jpeg" };
+  await new Promise((ok, erro) => { const tx = db.transaction("fotos", "readwrite"); tx.objectStore("fotos").put(dados, id); tx.oncomplete = ok; tx.onerror = () => erro(tx.error); tx.onabort = () => erro(tx.error); });
 }
 
 async function fotoLer(id) {
   const db = await bancoFotos();
-  return new Promise((ok) => { const r = db.transaction("fotos").objectStore("fotos").get(id); r.onsuccess = () => ok(r.result || null); r.onerror = () => ok(null); });
+  return new Promise((ok) => {
+    const r = db.transaction("fotos").objectStore("fotos").get(id);
+    r.onsuccess = () => { const v = r.result; ok(!v ? null : v instanceof Blob ? v : new Blob([v.buf], { type: v.tipo })); };
+    r.onerror = () => ok(null);
+  });
 }
 
 async function fotoApagar(id) {
@@ -39,8 +45,7 @@ async function fotoApagar(id) {
 async function reduzirFoto(arquivo) {
   const url = URL.createObjectURL(arquivo);
   const img = new Image();
-  img.src = url;
-  await img.decode();
+  await new Promise((ok, erro) => { img.onload = ok; img.onerror = erro; img.src = url; });
   const k = Math.min(1, 1200 / Math.max(img.naturalWidth, img.naturalHeight));
   const c = document.createElement("canvas");
   c.width = Math.round(img.naturalWidth * k);
@@ -189,10 +194,11 @@ function telaScrapbook() {
       </div>
       <button type="button" class="botao botao-montar" data-acao="scrap-montar">✨ Montar sozinho com os adesivos da viagem</button>
       <div class="scrap-acoes">
-        <label class="botao">+ Foto<input type="file" accept="image/*" multiple id="scrap-foto" hidden></label>
+        <label class="botao botao-arquivo">+ Foto<input type="file" accept="image/*" multiple id="scrap-foto" aria-label="Adicionar fotos"></label>
         <button type="button" class="botao" data-acao="scrap-adesivo">+ Adesivo</button>
         <button type="button" class="botao botao-cheio" data-acao="scrap-salvar">Salvar imagem</button>
       </div>
+      <p class="scrap-aviso" id="scrap-aviso" role="status" hidden></p>
       <p class="legenda" style="text-align:center">Fica só neste celular. Salve a imagem para guardar.</p>
     </section>`;
 }
@@ -232,6 +238,13 @@ async function desenharFolha() {
   folha._urls = urls;
 }
 
+function avisoScrap(texto) {
+  const p = document.getElementById("scrap-aviso");
+  if (!p) return;
+  p.textContent = texto;
+  p.hidden = !texto;
+}
+
 function iniciarScrapbook() {
   carregarPecas();
   SCRAP.selecionada = null;
@@ -264,14 +277,25 @@ function iniciarScrapbook() {
     else { SCRAP.selecionada = SCRAP.selecionada === p.id ? null : p.id; desenharFolha(); }
   });
   document.getElementById("scrap-foto").addEventListener("change", async (ev) => {
-    for (const arquivo of ev.target.files) {
-      const { blob } = await reduzirFoto(arquivo);
-      const id = `f${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`;
-      await fotoGuardar(id, blob);
-      novaPeca({ tipo: "foto", foto: id, fita: Math.floor(Math.random() * 3) });
+    const arquivos = [...ev.target.files];
+    if (!arquivos.length) return;
+    avisoScrap(arquivos.length > 1 ? `Colando ${arquivos.length} fotos…` : "Colando a foto…");
+    let falhas = 0;
+    for (const arquivo of arquivos) {
+      try {
+        const { blob } = await reduzirFoto(arquivo);
+        const id = `f${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`;
+        await fotoGuardar(id, blob);
+        novaPeca({ tipo: "foto", foto: id, fita: Math.floor(Math.random() * 3) });
+      } catch (e) {
+        falhas++;
+      }
     }
     ev.target.value = "";
-    desenharFolha();
+    await desenharFolha();
+    avisoScrap(falhas
+      ? `Não deu para guardar ${falhas > 1 ? `${falhas} fotos` : "uma foto"} neste celular. Se estiver numa aba anônima, abra fora dela e tente de novo.`
+      : "");
   });
 }
 

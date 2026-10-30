@@ -75,6 +75,13 @@ function lembrar(chave) {
   try { return localStorage.getItem(`roteiro:${chave}`); } catch (e) { return null; }
 }
 
+// Quantas paradas foram marcadas como feitas (todas as linhas do tempo, inclusive as dos planos de tempo).
+function paradasFeitas() {
+  let n = 0;
+  try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k.startsWith("roteiro:feito:") && localStorage.getItem(k) === "1") n++; } } catch (e) { /* sem armazenamento */ }
+  return n;
+}
+
 function lerJSON(chave) {
   try { return JSON.parse(lembrar(chave)) || null; } catch (e) { return null; }
 }
@@ -471,7 +478,7 @@ function telaHub() {
 function blocoLembranca(dias) {
   const v = R.viagem;
   const lugares = R.dias.flatMap((d) => lugaresDoDia(d).map((i) => ({ ...i, dia: d })));
-  const feitas = R.dias.reduce((n, d) => n + d.blocos.reduce((m, b, k) => m + (b.tipo === "linha" ? b.itens.filter((_, i) => lembrar(`feito:${d.id}:${k}:${i}`) === "1").length : 0), 0), 0);
+  const feitas = paradasFeitas();
   const numeros = [[R.dias.length, "dias"], [v.cidades, "cidades"], [lugares.length, "lugares"]];
   if (feitas) numeros.push([feitas, "paradas feitas"]);
   const mosaico = v.lembranca.map(([diaId, itemId]) => lugares.find((l) => l.dia.id === diaId && l.id === itemId)).filter(Boolean);
@@ -481,6 +488,17 @@ function blocoLembranca(dias) {
       <div class="numeros">${numeros.map(([n, l]) => `<div class="numero"><strong>${n}</strong><span>${l}</span></div>`).join("")}</div>
     </section>
     ${dias}
+    <section class="secao">
+      <h2>Scrapbook da viagem</h2>
+      <a class="scrap-entrada" href="#/scrapbook">
+        <span class="scrap-previa" aria-hidden="true">
+          ${["igrejinha-pampulha", "sao-francisco-op", "narcissus"].map((f) => `<span class="polaroid"><img src="${foto(f)}" alt="" loading="lazy"></span>`).join("")}
+          <span class="adesivo-mini">${icone("coracao", 13)} aniversário de casamento</span>
+        </span>
+        <span>Monte a colagem com as fotos de vocês, os lugares e os adesivos do app.</span>
+        <span class="botao botao-cheio">Abrir scrapbook</span>
+      </a>
+    </section>
     <section class="secao">
       <div class="secao-topo"><h2>O que vocês viram</h2><span class="legenda">${lugares.length} lugares</span></div>
       <div class="mosaico">${mosaico
@@ -668,7 +686,7 @@ function telaDia(dia, plano) {
   return `<div class="cor-${dia.cor}">
     <div class="heroi">
       <img src="${foto(dia.foto)}" alt="">
-      <a class="redondo" href="#/" aria-label="Voltar ao início">${icone("voltar", 20)}</a>
+      <a class="redondo" href="${estado.origem || "#/viagem"}" aria-label="Voltar">${icone("voltar", 20)}</a>
       <div class="heroi-texto">
         <span class="heroi-data">${esc(dataLonga(dia.data))}</span>
         <h1>${esc(dia.titulo)}</h1>
@@ -972,6 +990,9 @@ function atualizarNav(rota, id) {
 async function render() {
   if (gavetaAberta) fecharGaveta(true);
   const [, rota = "", id, plano] = location.hash.replace(/^#/, "").split("/");
+  // A seta de voltar da tela do dia leva para a última tela fora dos dias (início, Os dias, Avisos).
+  // Trocar de dia pela fileira não muda esse destino.
+  if (rota !== "dia") estado.origem = rota === "" ? "#/viagem" : location.hash;
   let html;
   let titulo = `${R.titulo} · Andanças`;
 
@@ -988,6 +1009,9 @@ async function render() {
   } else if (rota === "creditos") {
     html = telaCreditos(await carregarCreditos());
     titulo = `Créditos · ${R.titulo}`;
+  } else if (rota === "scrapbook") {
+    html = telaScrapbook();
+    titulo = "Scrapbook · Andanças";
   } else if (rota === "andancas" || (rota === "" && !diaDeHoje())) {
     // Fora da viagem, o app abre no hub; durante a viagem, direto no "hoje".
     html = telaHub();
@@ -997,6 +1021,7 @@ async function render() {
   }
 
   app.innerHTML = html;
+  if (rota === "scrapbook") iniciarScrapbook();
   document.title = titulo;
   atualizarNav(rota, id);
 
@@ -1012,6 +1037,8 @@ async function render() {
 // ---------- Eventos ----------
 
 document.addEventListener("click", (ev) => {
+  const ferramenta = ev.target.closest("[data-scrap]");
+  if (ferramenta) { acaoScrapbook(ferramenta.dataset.scrap); return; }
   const alvo = ev.target.closest("[data-acao]");
   if (alvo) {
     const { acao, dia, id } = alvo.dataset;
@@ -1023,6 +1050,10 @@ document.addEventListener("click", (ev) => {
       document.querySelector(`[data-acao="aba-voo"][data-aba="${estado.abaVoo}"]`)?.focus();
     } else if (acao === "editar-voo") gavetaVoo(alvo.dataset.aba || estado.abaVoo || "ida");
     else if (acao === "editar-hotel") gavetaHotel();
+    else if (acao === "scrap-adesivo") gavetaAdesivos();
+    else if (acao === "scrap-colar") { colarAdesivo(Number(alvo.dataset.n)); desenharFolha(); }
+    else if (acao === "scrap-salvar") salvarScrapbook(alvo);
+    else if (acao === "scrap-montar") montarSozinho();
     else if (acao === "obra") {
       const cartao = alvo.closest(".caminho");
       const bloco = diaPorId(cartao.dataset.dia).blocos.find((x) => x.caminho);

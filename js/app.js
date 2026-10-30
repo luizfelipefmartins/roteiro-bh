@@ -4,7 +4,7 @@
 
 const R = ROTEIRO;
 // Mesmo número do ?v= no index.html e da VERSAO no sw.js; aparece no rodapé para conferir se a versão nova chegou.
-const VERSAO_APP = 18;
+const VERSAO_APP = 19;
 const app = document.getElementById("app");
 
 const MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
@@ -1023,6 +1023,8 @@ async function render() {
   }
 
   app.innerHTML = html;
+  // No scrapbook a barra de navegação some: ela cobriria os botões de baixo (+ Foto, Salvar imagem).
+  document.body.classList.toggle("sem-nav", rota === "scrapbook");
   if (rota === "scrapbook") iniciarScrapbook();
   document.title = titulo;
   atualizarNav(rota, id);

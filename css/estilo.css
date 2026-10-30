@@ -516,3 +516,18 @@ img { display: block; max-width: 100%; }
 .mosaico-foto span { position: absolute; left: 10px; right: 10px; bottom: 10px; z-index: 1; font-size: 13px; font-weight: 700; }
 .proxima { border: 2px dashed var(--cinza); border-radius: var(--raio-xl); padding: var(--espaco-lg); display: flex; flex-direction: column; align-items: center; gap: var(--espaco-2xs); text-align: center; }
 .proxima strong { font-size: 17px; }
+
+/* Hub "Suas andanças" */
+.link-hub { font-size: 13px; color: var(--cinza); text-decoration: none; margin-bottom: var(--espaco-2xs); }
+.topo-simples .logo-marca { width: 130px; margin-bottom: var(--espaco-sm); }
+.card-viagem {
+  display: flex; flex-direction: column; align-items: flex-start; gap: var(--espaco-xs);
+  padding: var(--espaco-lg); border-radius: var(--raio-xl); background: var(--forte); color: #fff; text-decoration: none;
+}
+.card-viagem strong { font-family: var(--titulo); font-weight: 800; font-size: 26px; line-height: 1.1; }
+.card-viagem > span:not(.chip) { font-size: 13px; }
+.chip-adesivo { background: var(--adesivo); color: var(--tinta); }
+.card-viagem-rodape { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: var(--espaco-sm); margin-top: var(--espaco-2xs); }
+.trilha { display: flex; align-items: center; gap: 6px; }
+.trilha i { width: 8px; height: 8px; border-radius: 50%; background: #fff; }
+.trilha b { width: 16px; height: 16px; border-radius: 50%; background: var(--adesivo); }

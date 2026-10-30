@@ -445,6 +445,27 @@ function blocoChegada(dia) {
     </section>`;
 }
 
+// Hub "Suas andanças": o card de cada viagem e o convite para a próxima.
+function telaHub() {
+  const v = R.viagem;
+  const h = hojeISO();
+  const status = h < R.inicio ? contagem() : h <= R.fim ? `acontecendo agora · ${contagem()}` : "lembrança da viagem";
+  const d = (iso) => iso.split("-").reverse().join("/");
+  return `<header class="topo-simples">
+      <img class="logo-marca" src="img/logo-andancas.svg" alt="Andanças" width="130" height="36">
+      <h1>Suas andanças</h1>
+    </header>
+    <section class="secao">
+      <a class="card-viagem cor-azulejo" href="#/viagem">
+        <span class="chip chip-adesivo">aniversário de casamento</span>
+        <strong>${esc(v.nome)}</strong>
+        <span>${esc(v.onde)} · ${d(R.inicio)} a ${d(R.fim)}</span>
+        <span class="card-viagem-rodape"><span class="trilha" aria-hidden="true"><i></i><i></i><i></i><b></b></span><span>${esc(status)}</span></span>
+      </a>
+      <div class="proxima"><strong>+ Próxima andança</strong><span class="legenda">em breve: guarde aqui o roteiro da próxima viagem</span></div>
+    </section>`;
+}
+
 // Depois da viagem, o início vira lembrança: nome da viagem, números, os dias, o que vocês viram
 // e o convite para a próxima andança (o app vai guardar todas as viagens).
 function blocoLembranca(dias) {
@@ -513,6 +534,7 @@ function telaInicio() {
   return `
     <header class="inicio-topo">
       <div class="inicio-titulo">
+        <a class="link-hub" href="#/andancas">‹ Suas andanças</a>
         ${depois
           ? `<img class="logo-marca" src="img/logo-andancas.svg" alt="Andanças" width="150" height="41">`
           : `<span class="saudacao">Oi, vocês dois!</span><h1>${esc(R.titulo)}</h1>`}
@@ -937,7 +959,7 @@ function atualizarNav(rota, id) {
   const hoje = diaDeHoje();
   const nav = document.querySelectorAll(".nav a");
   const qtd = R.avisos.length + pendencias().length;
-  nav[0].href = hoje ? `#/dia/${hoje.id}` : "#/";
+  nav[0].href = hoje ? `#/dia/${hoje.id}` : "#/viagem";
   nav[0].innerHTML = `${icone("sol", 18)} Hoje`;
   nav[1].innerHTML = `${icone("calendario", 18)} Dias`;
   nav[2].innerHTML = `${icone("alerta", 18)} Avisos${qtd ? ` <span class="contagem">${qtd}</span>` : ""}`;
@@ -966,6 +988,10 @@ async function render() {
   } else if (rota === "creditos") {
     html = telaCreditos(await carregarCreditos());
     titulo = `Créditos · ${R.titulo}`;
+  } else if (rota === "andancas" || (rota === "" && !diaDeHoje())) {
+    // Fora da viagem, o app abre no hub; durante a viagem, direto no "hoje".
+    html = telaHub();
+    titulo = "Suas andanças · Andanças";
   } else {
     html = telaInicio();
   }

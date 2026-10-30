@@ -485,6 +485,21 @@ function telaInicio() {
 // Card do voo: só nos dias da ida e da volta (e na tela desses dois dias).
 function cardVoo(aba) {
   estado.abaVoo = aba;
+  const abas = `<div class="abas" role="group" aria-label="Ida ou volta">
+        ${["ida", "volta"].map((a) => `<button type="button" data-acao="aba-voo" data-aba="${a}" aria-pressed="${a === aba}">${a === "ida" ? "Ida" : "Volta"}</button>`).join("")}
+      </div>`;
+  // Enquanto a pessoa não salvar o voo neste celular, o card fica vazio, com o convite para adicionar.
+  if (!lerJSON(`voo:${aba}`)) {
+    return `<div class="voo voo-vazio cor-azulejo" id="voo">
+      <div class="voo-topo"><h2><span class="bolinha" style="width:36px;height:36px">${icone("decolar", 18)}</span>Seu voo</h2>${abas}</div>
+      <div class="voo-convite">
+        <span class="bolinha">${icone("aviao", 18)}</span>
+        <strong>Adicione o voo de ${aba}</strong>
+        <p class="legenda">Número, horários e aeroportos. Os dados ficam só neste celular.</p>
+      </div>
+      <button type="button" class="botao botao-cheio" data-acao="editar-voo" data-aba="${aba}">${icone("decolar", 20)} Adicionar voo</button>
+    </div>`;
+  }
   const v = vooDe(aba);
   const ponta = (p) => `<div class="rota-ponta">
       <span class="rota-cod${p.cod ? "" : " vazio"}">${p.cod ? esc(p.cod) : "???"}</span>

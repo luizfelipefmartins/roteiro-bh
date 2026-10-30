@@ -547,8 +547,7 @@ img { display: block; max-width: 100%; }
 .fita-2 { background: rgba(154, 221, 184, 0.75); }
 .peca.selecionada { outline: 2px dashed var(--forte); outline-offset: 4px; }
 .folha-vazia { position: absolute; left: 10%; right: 10%; top: 74%; text-align: center; color: var(--cinza); font-size: 14px; }
-.scrap-ferramentas { display: flex; justify-content: center; gap: var(--espaco-xs); }
-.scrap-ferramentas button { width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--linha); background: var(--branco); font-size: 18px; display: flex; align-items: center; justify-content: center; }
+/* (ferramentas da peça: estilo mais abaixo) */
 .scrap-acoes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--espaco-xs); }
 .scrap-acoes .botao { min-height: 52px; font-size: 14px; padding: 0 var(--espaco-xs); cursor: pointer; }
 .adesivos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--espaco-xs); }
@@ -557,7 +556,7 @@ img { display: block; max-width: 100%; }
 .espaco-foto {
   position: absolute; width: 38%; aspect-ratio: 140 / 116; transform: rotate(var(--rot));
   border: 2px dashed #A9A2B8; border-radius: 10px; background: rgba(255, 255, 255, 0.7);
-  display: flex; align-items: center; justify-content: center; color: #A9A2B8; font: 800 28px var(--titulo); pointer-events: none;
+  display: flex; align-items: center; justify-content: center; color: #A9A2B8; font: 800 28px var(--titulo); cursor: pointer;
 }
 .scrap-previa { position: relative; height: 150px; border-radius: var(--raio-xl); background: var(--creme); overflow: hidden; display: block; }
 .scrap-previa .polaroid { position: absolute; top: 18px; width: 30%; padding: 4px 4px 14px; background: #fff; box-shadow: 0 6px 14px rgba(43, 35, 64, 0.18); }
@@ -576,3 +575,17 @@ img { display: block; max-width: 100%; }
 /* Telas sem a barra de navegação (scrapbook) */
 body.sem-nav .nav { display: none; }
 body.sem-nav #app { padding-bottom: calc(32px + env(safe-area-inset-bottom)); }
+/* Scrapbook: dicas de gesto e ferramentas com nome */
+.scrap-dicas { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--espaco-xs); }
+.scrap-dicas li { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: var(--raio-full); background: var(--creme-2); font-size: 12px; color: var(--tinta-2); }
+.scrap-dicas b { font-weight: 400; }
+.scrap-ferramentas { flex-direction: column; align-items: stretch; gap: var(--espaco-2xs); }
+.scrap-ferramentas:not([hidden]) { display: flex; }
+.scrap-ferramentas .legenda { text-align: center; }
+.scrap-botoes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--espaco-xs); }
+.scrap-botoes button {
+  min-height: 48px; border-radius: var(--raio-md); border: 1.5px solid var(--linha); background: var(--branco); color: var(--tinta);
+  display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 14px; font-weight: 700;
+}
+.scrap-botoes button span { font-size: 18px; line-height: 1; }
+.scrap-botoes button.perigo { color: var(--perigo); border-color: #F5C2A8; }

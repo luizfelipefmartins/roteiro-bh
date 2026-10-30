@@ -4,7 +4,7 @@
 
 const R = ROTEIRO;
 // Mesmo número do ?v= no index.html e da VERSAO no sw.js; aparece no rodapé para conferir se a versão nova chegou.
-const VERSAO_APP = 19;
+const VERSAO_APP = 20;
 const app = document.getElementById("app");
 
 const MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];

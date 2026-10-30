@@ -3,18 +3,18 @@
 // Fotos e fontes: cópia guardada primeiro. A previsão do tempo nunca é guardada.
 
 // Ao publicar uma mudança, troque a VERSAO aqui e o ?v= dos links no index.html.
-const VERSAO = "roteiro-v5";
+const VERSAO = "roteiro-v6";
 
-// magic-square fica fora: a foto saiu do card "Para fotografar" (volta na v2).
+// Fotos que ficam guardadas no celular para abrir sem sinal.
 const FOTOS = [
   "andujar", "capa", "casa-do-baile", "casa-fiat", "casa-kubitschek", "ccbb-bh",
-  "igrejinha-pampulha", "inhotim", "mariana", "mercado-central",
+  "igrejinha-pampulha", "inhotim", "magic-square", "mariana", "mercado-central",
   "mirante-mangabeiras", "narcissus", "praca-da-liberdade", "praca-do-papa",
-  "sao-francisco-op", "varejao",
+  "sao-francisco-op", "varejao", "viewing-machine", "beam-drop", "troca-troca",
 ].map((f) => `img/${f}.jpg`);
 
 const ARQUIVOS = [
-  "./", "index.html", "css/estilo.css?v=5", "js/dados.js?v=5", "js/icones.js?v=5", "js/app.js?v=5",
+  "./", "index.html", "css/estilo.css?v=6", "js/dados.js?v=6", "js/icones.js?v=6", "js/app.js?v=6",
   "img/creditos.json", "img/icone.svg", "img/icone-192.png", "img/icone-512.png",
   "img/icone-maskable-512.png", "img/logo-andancas.svg", "manifest.webmanifest", ...FOTOS,
 ];

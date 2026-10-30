@@ -314,7 +314,15 @@ img { display: block; max-width: 100%; }
 /* Lista "para fotografar" */
 .caminho { display: flex; flex-direction: column; gap: 0; overflow: hidden; }
 .caminho img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
-.caminho .lista-regras { border-radius: 0; }
+.caminho .credito { padding: var(--espaco-xs) var(--espaco-md) 0; }
+.caminho-icone { width: 100%; aspect-ratio: 16 / 9; display: flex; align-items: center; justify-content: center; background: var(--forte); color: var(--claro); }
+.caminho-lista { list-style: none; margin: 0; padding: var(--espaco-2xs) var(--espaco-xs); }
+.caminho-lista button {
+  width: 100%; min-height: 44px; padding: var(--espaco-xs); border: 0; border-radius: var(--raio-md);
+  background: transparent; color: var(--tinta); text-align: left; display: flex; align-items: center; gap: var(--espaco-sm);
+}
+.caminho-lista .ic { color: var(--forte); }
+.caminho-lista button[aria-pressed="true"] { background: var(--claro); color: var(--escuro); font-weight: 700; }
 
 /* ---------- Avisos e dias ---------- */
 

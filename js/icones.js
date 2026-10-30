@@ -38,7 +38,8 @@ const ICONES = {
   vidro: '<path d="M3 10l9-6 9 6v10H3z"/><path d="M9 20v-6h6v6M3 10h18"/>',
   externo: '<path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
   copiar: '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/>',
-  cama: '<path d="M3 18V7M3 13h18v5M21 13a3 3 0 0 0-3-3h-7v3"/><circle cx="7" cy="10.5" r="1.5"/>',
+  arvore: '<path d="M12 22v-8M12 14l-4-3M12 12l4-3"/><path d="M12 2a6 6 0 0 0-5.7 7.9A4.5 4.5 0 0 0 8 18h8a4.5 4.5 0 0 0 1.7-8.1A6 6 0 0 0 12 2z"/>',
+  cama:'<path d="M3 18V7M3 13h18v5M21 13a3 3 0 0 0-3-3h-7v3"/><circle cx="7" cy="10.5" r="1.5"/>',
 };
 
 function icone(nome, tamanho = 20, classe = "") {

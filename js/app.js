@@ -335,12 +335,29 @@ const BLOCOS = {
     </section>` : ""}
     ${b.caminho ? `<section class="secao">
       <h2>${esc(b.caminho.titulo)}</h2>
-      <div class="cartao caminho">
-        ${b.caminho.foto ? `<img src="${foto(b.caminho.foto)}" alt="" loading="lazy">` : ""}
-        <ul class="lista-regras">${b.caminho.itens.map((t) => `<li>${icone("camera", 18)}<span>${esc(t)}</span></li>`).join("")}</ul>
-      </div>
+      <div class="cartao caminho" data-dia="${dia.id}">${cartaoCaminho(b.caminho, 0)}</div>
     </section>` : ""}`,
 };
+
+// "Para fotografar no caminho": a obra escolhida aparece no topo, com o crédito da foto.
+function cartaoCaminho(c, escolhida) {
+  const obra = c.itens[escolhida];
+  return `${obra.foto
+      ? `<img src="${foto(obra.foto)}" alt="${esc(obra.nome)}" loading="lazy">`
+      : `<span class="caminho-icone" role="img" aria-label="${esc(obra.nome)}: sem foto">${icone(obra.icone, 56)}</span>`}
+    ${obra.foto ? `<p class="credito" data-credito="${obra.foto}"></p>` : ""}
+    <ul class="caminho-lista">${c.itens
+      .map((o, n) => `<li><button type="button" data-acao="obra" data-n="${n}" aria-pressed="${n === escolhida}">
+        ${icone("camera", 18)}<span>${esc(o.nome)}</span></button></li>`)
+      .join("")}</ul>`;
+}
+
+async function preencherCreditos(raiz = document) {
+  const alvos = raiz.querySelectorAll("[data-credito]");
+  if (!alvos.length) return;
+  const creditos = await carregarCreditos();
+  alvos.forEach((p) => { const c = creditos[p.dataset.credito]; if (c) p.innerHTML = textoCredito(c); });
+}
 
 // ---------- Telas ----------
 
@@ -896,6 +913,7 @@ async function render() {
     window.scrollTo(0, 0);
   }
   atualizarBotaoTempo();
+  preencherCreditos(app);
 }
 
 // ---------- Eventos ----------
@@ -912,6 +930,14 @@ document.addEventListener("click", (ev) => {
       document.querySelector(`[data-acao="aba-voo"][data-aba="${estado.abaVoo}"]`)?.focus();
     } else if (acao === "editar-voo") gavetaVoo(alvo.dataset.aba || estado.abaVoo || "ida");
     else if (acao === "editar-hotel") gavetaHotel();
+    else if (acao === "obra") {
+      const cartao = alvo.closest(".caminho");
+      const bloco = diaPorId(cartao.dataset.dia).blocos.find((x) => x.caminho);
+      const n = Number(alvo.dataset.n);
+      cartao.innerHTML = cartaoCaminho(bloco.caminho, n);
+      preencherCreditos(cartao);
+      cartao.querySelector(`[data-acao="obra"][data-n="${n}"]`)?.focus();
+    }
     else if (acao === "feito") {
       const feito = alvo.getAttribute("aria-pressed") !== "true";
       guardar(id, feito ? "1" : "0");

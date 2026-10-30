@@ -531,10 +531,17 @@ const ROTEIRO = {
               "Matthew Barney, De lama lâmina: impactante, mas longe.",
             ],
           },
-          // Sem foto: uma foto só parecia valer para a lista toda (v2: cada obra troca a foto).
+          // Tocar numa obra troca a foto do topo. Sem foto livre (Penone), fica o ícone.
           caminho: {
             titulo: "Para fotografar no caminho",
-            itens: ["Magic Square #5, Hélio Oiticica", "Viewing Machine, Olafur Eliasson", "Beam Drop, Chris Burden", "Troca-troca, Jarbas Lopes", "Narcissus Garden, Yayoi Kusama", "Elevazione, Giuseppe Penone"],
+            itens: [
+              { nome: "Magic Square #5, Hélio Oiticica", foto: "magic-square" },
+              { nome: "Viewing Machine, Olafur Eliasson", foto: "viewing-machine" },
+              { nome: "Beam Drop, Chris Burden", foto: "beam-drop" },
+              { nome: "Troca-troca, Jarbas Lopes", foto: "troca-troca" },
+              { nome: "Narcissus Garden, Yayoi Kusama", foto: "narcissus" },
+              { nome: "Elevazione, Giuseppe Penone", icone: "arvore" },
+            ],
           },
         },
         {

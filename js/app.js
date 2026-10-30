@@ -4,7 +4,7 @@
 
 const R = ROTEIRO;
 // Mesmo número do ?v= no index.html e da VERSAO no sw.js; aparece no rodapé para conferir se a versão nova chegou.
-const VERSAO_APP = 20;
+const VERSAO_APP = 21;
 const app = document.getElementById("app");
 
 const MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
@@ -436,7 +436,7 @@ function cardHotel() {
   return `<div class="hotel cartao">
       <div class="hotel-topo"><span class="bolinha">${icone("cama", 18)}</span><div><strong>${esc(h.nome || "Seu hotel")}</strong><span class="legenda">${esc(h.endereco || "")}</span></div></div>
       <div class="botoes">
-        <button type="button" class="botao" data-acao="copiar" data-texto="${esc(h.endereco || "")}">${icone("copiar", 18)} Copiar endereço</button>
+        <button type="button" class="botao" data-acao="copiar" data-texto="${esc(h.endereco || "")}" aria-label="Copiar endereço">${icone("copiar", 18)} Copiar</button>
         <a class="botao" href="${linkMapa(h.endereco || h.nome)}" target="_blank" rel="noopener">${icone("pino", 18)} Mapa</a>
       </div>
       <button type="button" class="link-editar" data-acao="editar-hotel">Editar dados do hotel</button>
@@ -1074,7 +1074,7 @@ document.addEventListener("click", (ev) => {
       alvo.closest("li").classList.toggle("feito", feito);
     } else if (acao === "copiar") {
       const texto = alvo.dataset.texto;
-      const pronto = () => { alvo.lastChild.textContent = " Copiado!"; setTimeout(() => (alvo.lastChild.textContent = " Copiar endereço"), 2000); };
+      const pronto = () => { alvo.lastChild.textContent = " Copiado!"; setTimeout(() => (alvo.lastChild.textContent = " Copiar"), 2000); };
       navigator.clipboard?.writeText(texto).then(pronto, () => prompt("Copie o endereço:", texto));
     } else if (acao === "cenario") {
       const d = diaPorId(dia);

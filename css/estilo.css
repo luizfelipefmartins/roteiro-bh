@@ -589,3 +589,15 @@ body.sem-nav #app { padding-bottom: calc(32px + env(safe-area-inset-bottom)); }
 }
 .scrap-botoes button span { font-size: 18px; line-height: 1; }
 .scrap-botoes button.perigo { color: var(--perigo); border-color: #F5C2A8; }
+
+/* Ajustes do teste no iPhone (2026-10-29) */
+/* Abas Ida | Volta na gaveta: do tamanho das abas, não da largura toda */
+.gaveta .abas { align-self: flex-start; }
+/* Campo de data: o Safari do iPhone ignora a altura do campo; fixar altura e alinhar à esquerda */
+.campo input[type="date"] {
+  -webkit-appearance: none; appearance: none; display: block; width: 100%;
+  height: 48px; min-height: 48px; line-height: 48px; padding: 0 var(--espaco-md); text-align: left;
+}
+.campo input[type="date"]::-webkit-date-and-time-value { text-align: left; min-height: 1.2em; }
+/* Botões do hotel numa linha só */
+.hotel .botao { white-space: nowrap; padding: 0 var(--espaco-sm); }

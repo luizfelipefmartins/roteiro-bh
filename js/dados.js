@@ -12,6 +12,8 @@ const ROTEIRO = {
   // Tela de lembrança (depois da viagem). "lembranca" lista [dia, lugar] das fotos do mosaico.
   viagem: {
     nome: "Roteiro Mineiro a Dois",
+    motivo: "aniversário de casamento",
+    regiao: "Minas",
     onde: "BH, Ouro Preto, Mariana e Inhotim",
     cidades: 4,
     lembranca: [["d31", "igrejinha"], ["d31", "mercado"], ["d01", "sfop"], ["d01", "mariana"], ["d02", "kusama"], ["d02", "varejao"]],

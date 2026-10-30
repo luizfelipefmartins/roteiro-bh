@@ -567,3 +567,4 @@ img { display: block; max-width: 100%; }
 .scrap-previa .polaroid:nth-child(3) { left: 62%; transform: rotate(-3deg); }
 .adesivo-mini { position: absolute; left: 10%; bottom: 12px; transform: rotate(-4deg); padding: 6px 10px; border-radius: 10px; background: var(--adesivo); color: var(--tinta); font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 4px 10px rgba(43, 35, 64, 0.15); }
 .adesivo-mini .ic { color: var(--perigo); fill: var(--perigo); }
+.botao-montar { min-height: 48px; border-style: dashed; font-size: 15px; }

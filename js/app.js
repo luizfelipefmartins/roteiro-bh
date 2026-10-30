@@ -75,6 +75,13 @@ function lembrar(chave) {
   try { return localStorage.getItem(`roteiro:${chave}`); } catch (e) { return null; }
 }
 
+// Quantas paradas foram marcadas como feitas (todas as linhas do tempo, inclusive as dos planos de tempo).
+function paradasFeitas() {
+  let n = 0;
+  try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k.startsWith("roteiro:feito:") && localStorage.getItem(k) === "1") n++; } } catch (e) { /* sem armazenamento */ }
+  return n;
+}
+
 function lerJSON(chave) {
   try { return JSON.parse(lembrar(chave)) || null; } catch (e) { return null; }
 }
@@ -1043,6 +1050,7 @@ document.addEventListener("click", (ev) => {
     else if (acao === "scrap-adesivo") gavetaAdesivos();
     else if (acao === "scrap-colar") { colarAdesivo(Number(alvo.dataset.n)); desenharFolha(); }
     else if (acao === "scrap-salvar") salvarScrapbook(alvo);
+    else if (acao === "scrap-montar") montarSozinho();
     else if (acao === "obra") {
       const cartao = alvo.closest(".caminho");
       const bloco = diaPorId(cartao.dataset.dia).blocos.find((x) => x.caminho);

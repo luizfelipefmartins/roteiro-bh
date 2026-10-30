@@ -59,9 +59,17 @@ function escSvg(t) {
   return String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 }
 
+// Datas do carimbo a partir do roteiro: "30.10 — 03.11" e "MINAS · 2026".
+function datasCarimbo() {
+  const dm = (iso) => iso.slice(8, 10) + "." + iso.slice(5, 7);
+  return [`${dm(R.inicio)} — ${dm(R.fim)}`, `${(R.viagem.regiao || "").toUpperCase()} · ${R.fim.slice(0, 4)}`];
+}
+
 function adesivoSVG(p) {
   if (p.tipo === "aniversario") {
-    return { w: 230, h: 40, svg: `<rect width="230" height="40" rx="12" fill="#FFD95A"/><text x="115" y="26" font-family="${FONTE}" font-size="15" font-weight="700" fill="#2B2340" text-anchor="middle">♥ aniversário de casamento</text>` };
+    const texto = `♥ ${p.texto || R.viagem.motivo}`;
+    const w = Math.round(30 + texto.length * 8.4);
+    return { w, h: 40, svg: `<rect width="${w}" height="40" rx="12" fill="#FFD95A"/><text x="${w / 2}" y="26" font-family="${FONTE}" font-size="15" font-weight="700" fill="#2B2340" text-anchor="middle">${escSvg(texto)}</text>` };
   }
   if (p.tipo === "etiqueta") {
     const [bg, cor] = CORES_DIA[p.cor] || CORES_DIA.azulejo;
@@ -69,10 +77,13 @@ function adesivoSVG(p) {
     return { w, h: 32, svg: `<rect width="${w}" height="32" rx="16" fill="${bg}"/><text x="${w / 2}" y="21" font-family="${FONTE}" font-size="14" font-weight="700" fill="${cor}" text-anchor="middle">${escSvg(p.texto)}</text>` };
   }
   if (p.tipo === "bilhete") {
-    return { w: 190, h: 70, svg: `<rect x="1" y="1" width="188" height="68" rx="12" fill="#fff" stroke="#EFE5D8" stroke-width="2" stroke-dasharray="5 4"/><text x="14" y="24" font-family="${FONTE}" font-size="11" font-weight="700" fill="#6B6480">TRANSFER BELVITUR</text><text x="14" y="52" font-family="${FONTE}" font-size="22" font-weight="800" fill="#2B2340">07h45 → 08h00</text>` };
+    p = { titulo: "", texto: "", ...p };
+    const w = Math.max(170, Math.round(28 + Math.max(p.titulo.length * 7.4, p.texto.length * 12.5)));
+    return { w, h: 70, svg: `<rect x="1" y="1" width="${w - 2}" height="68" rx="12" fill="#fff" stroke="#EFE5D8" stroke-width="2" stroke-dasharray="5 4"/><text x="14" y="24" font-family="${FONTE}" font-size="11" font-weight="700" fill="#6B6480">${escSvg(p.titulo)}</text><text x="14" y="52" font-family="${FONTE}" font-size="22" font-weight="800" fill="#2B2340">${escSvg(p.texto)}</text>` };
   }
   if (p.tipo === "carimbo") {
-    return { w: 124, h: 124, svg: `<circle cx="62" cy="62" r="58" fill="none" stroke="#C2410C" stroke-width="4" opacity=".85"/><text x="62" y="60" font-family="${FONTE}" font-size="15" font-weight="700" fill="#C2410C" text-anchor="middle">30.10 — 03.11</text><text x="62" y="80" font-family="${FONTE}" font-size="12" font-weight="700" fill="#C2410C" text-anchor="middle">MINAS · 2026</text>` };
+    const [l1, l2] = datasCarimbo();
+    return { w: 124, h: 124, svg: `<circle cx="62" cy="62" r="58" fill="none" stroke="#C2410C" stroke-width="4" opacity=".85"/><text x="62" y="60" font-family="${FONTE}" font-size="15" font-weight="700" fill="#C2410C" text-anchor="middle">${escSvg(l1)}</text><text x="62" y="80" font-family="${FONTE}" font-size="12" font-weight="700" fill="#C2410C" text-anchor="middle">${escSvg(l2)}</text>` };
   }
   // trilha da cedilha
   return { w: 120, h: 30, svg: `<g fill="#2B2340"><circle cx="8" cy="15" r="6"/><circle cx="30" cy="15" r="6"/><circle cx="52" cy="15" r="6"/><circle cx="74" cy="15" r="6"/></g><circle cx="102" cy="15" r="12" fill="#FFD95A" stroke="#2B2340" stroke-width="4"/>` };
@@ -83,12 +94,56 @@ function adesivoURL(p) {
   return { ...a, url: `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${a.w}" height="${a.h}" viewBox="0 0 ${a.w} ${a.h}">${a.svg}</svg>`)}` };
 }
 
-// Lista do "+ Adesivo": peças fixas e uma etiqueta por lugar e por cidade.
-function catalogoAdesivos() {
-  const base = [{ tipo: "aniversario" }, { tipo: "carimbo" }, { tipo: "bilhete" }, { tipo: "trilha" }];
-  const cidades = [["Belo Horizonte", "terracota"], ["Ouro Preto", "ouro"], ["Mariana", "ouro"], ["Inhotim", "mata"]].map(([texto, cor]) => ({ tipo: "etiqueta", texto, cor }));
+// Adesivos gerados a partir do roteiro, para servir a qualquer andança:
+// motivo da viagem, carimbo das datas, bilhetes (transfers e voos salvos), cidades, dias, lugares e paradas feitas.
+function adesivosDaViagem() {
+  const v = R.viagem;
+  const corDe = (cidade) => (R.dias.find((d) => d.titulo.includes(cidade) || R.locais[d.local]?.nome === cidade) || R.dias[0]).cor;
+  const bilhetes = R.dias.flatMap((d) => d.blocos.filter((b) => b.tipo === "ingresso").map((b) => {
+    const [a, z] = b.itens.slice(-2);
+    return { tipo: "bilhete", titulo: b.titulo.toUpperCase(), texto: `${a.hora} → ${z.hora}` };
+  }));
+  for (const aba of ["ida", "volta"]) {
+    if (!lerJSON(`voo:${aba}`)) continue;
+    const x = vooDe(aba);
+    const ponta = aba === "ida" ? x.para : x.de;
+    if (ponta.hora) bilhetes.push({ tipo: "bilhete", titulo: `${aba.toUpperCase()} · ${(ponta.cod || ponta.cidade || "").toUpperCase()}`, texto: `${ponta.hora} ✈` });
+  }
+  const cidades = v.onde.split(/, | e /).map((c) => ({ tipo: "etiqueta", texto: c, cor: corDe(c) }));
+  const dias = R.dias.map((d) => ({ tipo: "etiqueta", texto: `${d.semana} ${Number(d.data.slice(8))} · ${d.titulo}`, cor: d.cor }));
   const lugares = R.dias.flatMap((d) => lugaresDoDia(d).map((l) => ({ tipo: "etiqueta", texto: l.nome, cor: d.cor })));
-  return [...base, ...cidades, ...lugares];
+  const feitas = paradasFeitas();
+  const selo = feitas ? [{ tipo: "etiqueta", texto: `✓ ${feitas} paradas feitas`, cor: "mata" }] : [];
+  return { base: [{ tipo: "aniversario", texto: v.motivo }, { tipo: "carimbo" }, { tipo: "trilha" }], bilhetes, cidades, dias, lugares, selo };
+}
+
+function catalogoAdesivos() {
+  const a = adesivosDaViagem();
+  return [...a.base, ...a.bilhetes, ...a.selo, ...a.cidades, ...a.dias, ...a.lugares];
+}
+
+// "Montar sozinho": espalha as fotos em leque pela folha e cola os adesivos da viagem entre elas.
+function montarSozinho() {
+  const fotos = SCRAP.pecas.filter((p) => p.tipo === "foto");
+  const a = adesivosDaViagem();
+  const sorte = (n) => Math.round((Math.random() * 2 - 1) * n);
+  const vagasFotos = [[0.25, 0.13], [0.72, 0.15], [0.48, 0.3], [0.2, 0.42], [0.76, 0.44], [0.47, 0.58], [0.22, 0.72], [0.74, 0.74], [0.5, 0.86]];
+  const novas = fotos.map((p, i) => {
+    const [x, y] = vagasFotos[i % vagasFotos.length];
+    return { ...p, x: x + sorte(3) / 100, y: y + sorte(3) / 100, rot: sorte(8), esc: fotos.length > 6 ? 0.85 : 1, fita: i % 3 };
+  });
+  const lembranca = R.viagem.lembranca.map(([d, id]) => a.lugares.find((l) => l.texto === lugaresDoDia(diaPorId(d)).find((x) => x.id === id)?.nome)).filter(Boolean);
+  const adesivos = [
+    [{ tipo: "aniversario", texto: R.viagem.motivo }, 0.5, 0.05],
+    [{ tipo: "carimbo" }, 0.82, 0.88],
+    [{ tipo: "trilha" }, 0.3, 0.96],
+    ...a.bilhetes.slice(0, 2).map((b, i) => [b, i ? 0.7 : 0.28, i ? 0.62 : 0.54]),
+    ...[...a.selo, ...a.cidades, ...lembranca].slice(0, 7).map((e, i) => [e, [0.15, 0.85, 0.5, 0.15, 0.85, 0.35, 0.65][i], [0.24, 0.3, 0.44, 0.6, 0.56, 0.78, 0.8][i]]),
+  ].map(([dados, x, y], i) => ({ id: `m${i}${Date.now().toString(36)}`, ...dados, x, y, rot: sorte(7), esc: 1 }));
+  SCRAP.pecas = [...novas, ...adesivos];
+  SCRAP.selecionada = null;
+  salvarPecas();
+  desenharFolha();
 }
 
 // ---------- Peças guardadas ----------
@@ -132,6 +187,7 @@ function telaScrapbook() {
         <button type="button" data-scrap="frente" aria-label="Trazer para a frente">▲</button>
         <button type="button" data-scrap="tirar" aria-label="Tirar da colagem">${icone("fechar", 18)}</button>
       </div>
+      <button type="button" class="botao botao-montar" data-acao="scrap-montar">✨ Montar sozinho com os adesivos da viagem</button>
       <div class="scrap-acoes">
         <label class="botao">+ Foto<input type="file" accept="image/*" multiple id="scrap-foto" hidden></label>
         <button type="button" class="botao" data-acao="scrap-adesivo">+ Adesivo</button>

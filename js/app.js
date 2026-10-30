@@ -91,6 +91,7 @@ function vooDe(aba) {
   const s = lerJSON(`voo:${aba}`) || {};
   return {
     ...base,
+    data: /^\d{4}-\d{2}-\d{2}$/.test(s.data || "") ? s.data : base.data,
     numero: s.numero || "",
     conexao: s.conexao || base.conexao,
     de: { cod: s.deCod || base.de.cod, hora: s.deHora || base.de.hora, cidade: s.deCidade || base.de.cidade },
@@ -554,11 +555,11 @@ function gavetaVoo(aba = "ida") {
       ${["ida", "volta"].map((a) => `<button type="button" data-acao="editar-voo" data-aba="${a}" aria-pressed="${a === aba}">${a === "ida" ? "Ida" : "Volta"}</button>`).join("")}
     </div>
     <form class="formulario" data-form="voo" data-aba="${aba}">
-      <p class="legenda">${esc(dataLonga(v.data))}</p>
-      ${campo("numero", "Número do voo", v.numero, 'placeholder="ex.: AD 1234" autocomplete="off"')}
-      <div class="campos-dupla">${campo("deCod", "Sai de (aeroporto)", v.de.cod, 'placeholder="ex.: FOR" maxlength="4"')}${campo("deHora", "Saída", v.de.hora, 'placeholder="ex.: 19h10"')}</div>
+      ${campo("data", "Data", v.data, 'type="date" min="2026-01-01" max="2027-12-31"')}
+      ${campo("numero", "Número do voo", v.numero, 'placeholder="ex.: AD 1234" autocomplete="off" autocapitalize="characters" maxlength="8" data-formato="voo"')}
+      <div class="campos-dupla">${campo("deCod", "Sai de (aeroporto)", v.de.cod, 'placeholder="ex.: FOR" maxlength="3" autocapitalize="characters" data-formato="aeroporto"')}${campo("deHora", "Saída", v.de.hora, 'placeholder="ex.: 19h10" inputmode="numeric" maxlength="5" data-formato="hora"')}</div>
       ${campo("deCidade", "Cidade de saída", v.de.cidade === R.voo[aba].de.cidade && !R.voo[aba].de.cod ? "" : v.de.cidade)}
-      <div class="campos-dupla">${campo("paraCod", "Chega em (aeroporto)", v.para.cod, 'placeholder="ex.: CNF" maxlength="4"')}${campo("paraHora", "Chegada", v.para.hora, 'placeholder="ex.: 22h50"')}</div>
+      <div class="campos-dupla">${campo("paraCod", "Chega em (aeroporto)", v.para.cod, 'placeholder="ex.: CNF" maxlength="3" autocapitalize="characters" data-formato="aeroporto"')}${campo("paraHora", "Chegada", v.para.hora, 'placeholder="ex.: 22h50" inputmode="numeric" maxlength="5" data-formato="hora"')}</div>
       ${campo("paraCidade", "Cidade de chegada", v.para.cidade === R.voo[aba].para.cidade && !R.voo[aba].para.cod ? "" : v.para.cidade)}
       <fieldset class="campo"><legend>Conexão</legend><div class="chips">
         ${opcoes.map((o) => `<label class="chip opcao"><input type="radio" name="conexao" value="${o}"${o === v.conexao ? " checked" : ""}> ${o === "a confirmar" ? "A confirmar" : o}</label>`).join("")}
@@ -582,6 +583,11 @@ function gavetaHotel() {
 function salvarFormulario(form) {
   const dados = Object.fromEntries(new FormData(form).entries());
   for (const k of Object.keys(dados)) dados[k] = dados[k].trim();
+  // Hora digitada pela metade vira hora cheia: "7" → "07h00", "19h3" → "19h30".
+  for (const k of ["deHora", "paraHora"]) {
+    const m = (dados[k] || "").match(/^(\d{1,2})(?:h(\d?))?$/);
+    if (m) dados[k] = `${m[1].padStart(2, "0")}h${(m[2] || "0").padEnd(2, "0")}`;
+  }
   if (form.dataset.form === "voo") guardar(`voo:${form.dataset.aba}`, JSON.stringify(dados));
   else guardar("hotel", JSON.stringify(dados));
   fecharGaveta();
@@ -997,6 +1003,30 @@ document.addEventListener("pointerup", () => {
   c.classList.remove("arrastando");
   // Depois de arrastar, o clique não abre o card.
   if (moveu) c.addEventListener("click", (e) => { e.stopPropagation(); e.preventDefault(); }, { capture: true, once: true });
+});
+
+// Campos do voo se formatam enquanto a pessoa digita: "ad1234" → "AD 1234", "gru" → "GRU", "1910" → "19h10".
+const FORMATOS = {
+  voo: (t) => {
+    const s = t.toUpperCase().replace(/[^A-Z0-9]/g, "");
+    const cia = s.match(/^[A-Z0-9]{2}/)?.[0] || s;
+    const num = s.slice(cia.length).replace(/\D/g, "").slice(0, 4);
+    return num ? `${cia} ${num}` : cia;
+  },
+  aeroporto: (t) => t.toUpperCase().replace(/[^A-Z]/g, "").slice(0, 3),
+  hora: (t) => {
+    let n = t.replace(/\D/g, "").slice(0, 4);
+    if (n.length <= 2) return n;
+    if (n.length === 3 && Number(n[0]) > 2) n = `0${n}`; // "910" → 09h10
+    const h = Math.min(Number(n.slice(0, 2)), 23);
+    const m = n.slice(2);
+    return `${String(h).padStart(2, "0")}h${m.length === 2 ? String(Math.min(Number(m), 59)).padStart(2, "0") : m}`;
+  },
+};
+document.addEventListener("input", (ev) => {
+  const f = FORMATOS[ev.target.dataset?.formato];
+  if (!f || ev.inputType === "deleteContentBackward") return;
+  ev.target.value = f(ev.target.value);
 });
 
 document.addEventListener("submit", (ev) => {

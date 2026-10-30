@@ -3,7 +3,7 @@
 // Fotos e fontes: cópia guardada primeiro. A previsão do tempo nunca é guardada.
 
 // Ao publicar uma mudança, troque a VERSAO aqui e o ?v= dos links no index.html.
-const VERSAO = "roteiro-v8";
+const VERSAO = "roteiro-v9";
 
 // Fotos que ficam guardadas no celular para abrir sem sinal.
 const FOTOS = [
@@ -16,7 +16,7 @@ const FOTOS = [
 ].map((f) => `img/${f}.jpg`);
 
 const ARQUIVOS = [
-  "./", "index.html", "css/estilo.css?v=8", "js/dados.js?v=8", "js/icones.js?v=8", "js/app.js?v=8",
+  "./", "index.html", "css/estilo.css?v=9", "js/dados.js?v=9", "js/icones.js?v=9", "js/app.js?v=9",
   "img/creditos.json", "img/icone.svg", "img/icone-192.png", "img/icone-512.png",
   "img/icone-maskable-512.png", "img/logo-andancas.svg", "manifest.webmanifest", ...FOTOS,
 ];

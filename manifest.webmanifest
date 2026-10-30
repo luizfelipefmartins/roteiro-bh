@@ -1,7 +1,7 @@
 {
-  "name": "BH a dois",
-  "short_name": "BH a dois",
-  "description": "Roteiro da viagem a Belo Horizonte, Ouro Preto, Mariana e Inhotim.",
+  "name": "Andanças",
+  "short_name": "Andanças",
+  "description": "Suas viagens, do roteiro à lembrança.",
   "lang": "pt-BR",
   "start_url": "./",
   "scope": "./",

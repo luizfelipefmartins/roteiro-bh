@@ -867,7 +867,7 @@ async function render() {
   if (gavetaAberta) fecharGaveta(true);
   const [, rota = "", id, plano] = location.hash.replace(/^#/, "").split("/");
   let html;
-  let titulo = R.titulo;
+  let titulo = `${R.titulo} · Andanças`;
 
   if (rota === "dia" && diaPorId(id)) {
     const dia = diaPorId(id);
@@ -981,4 +981,16 @@ render();
 const local = ["localhost", "127.0.0.1"].includes(location.hostname);
 if ("serviceWorker" in navigator && location.protocol === "https:" && !local) {
   navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+
+// Abertura do Andanças: aparece ao abrir o app e some sozinha; não volta a cada troca de tela.
+const abertura = document.getElementById("abertura");
+if (abertura) {
+  let jaViu = false;
+  try { jaViu = sessionStorage.getItem("roteiro:abertura") === "1"; sessionStorage.setItem("roteiro:abertura", "1"); } catch (e) { /* tudo bem */ }
+  const calmo = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const tirar = () => { abertura.classList.add("saindo"); setTimeout(() => abertura.remove(), 500); };
+  if (jaViu) abertura.remove();
+  else setTimeout(tirar, calmo ? 600 : 1300);
+  abertura.addEventListener("click", tirar);
 }

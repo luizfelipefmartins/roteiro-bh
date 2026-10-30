@@ -3,7 +3,7 @@
 // Fotos e fontes: cópia guardada primeiro. A previsão do tempo nunca é guardada.
 
 // Ao publicar uma mudança, troque a VERSAO aqui e o ?v= dos links no index.html.
-const VERSAO = "roteiro-v4";
+const VERSAO = "roteiro-v5";
 
 // magic-square fica fora: a foto saiu do card "Para fotografar" (volta na v2).
 const FOTOS = [
@@ -14,9 +14,9 @@ const FOTOS = [
 ].map((f) => `img/${f}.jpg`);
 
 const ARQUIVOS = [
-  "./", "index.html", "css/estilo.css?v=4", "js/dados.js?v=4", "js/icones.js?v=4", "js/app.js?v=4",
+  "./", "index.html", "css/estilo.css?v=5", "js/dados.js?v=5", "js/icones.js?v=5", "js/app.js?v=5",
   "img/creditos.json", "img/icone.svg", "img/icone-192.png", "img/icone-512.png",
-  "img/icone-maskable-512.png", "manifest.webmanifest", ...FOTOS,
+  "img/icone-maskable-512.png", "img/logo-andancas.svg", "manifest.webmanifest", ...FOTOS,
 ];
 
 self.addEventListener("install", (ev) => {
